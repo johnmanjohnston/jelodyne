@@ -4,8 +4,9 @@ project(PhaseVocoder VERSION 0.0.1)
 set (CMAKE_CXX_STANDARD 20)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(JUCE)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+add_subdirectory(JUCE)
 
 juce_add_gui_app(jelodyne
     BUNDLE_ID                       com.johnmanjohnston.jelodyne
@@ -31,8 +32,7 @@ target_sources(jelodyne PRIVATE
     src/main.cpp
     src/mainComponent.cpp
     src/clip.cpp
-    src/project.cpp
-    src/track.cpp)
+    src/piano.cpp)
 
 
 target_compile_definitions(jelodyne PRIVATE
