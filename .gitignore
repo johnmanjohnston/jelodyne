@@ -1,2 +1,9 @@
 Builds/
 JuceLibraryCode/
+JUCE/
+jelodyne_artefacts/
+CMakeFiles/
+build/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
