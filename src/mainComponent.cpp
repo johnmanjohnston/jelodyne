@@ -66,6 +66,11 @@ void MainComponent::handleIncomingMidiMessage(
     kb_state.processNextMidiEvent(message);
 
     midi_buf.addEvent(message, 0);
+
+    const juce::MessageManagerLock
+        mm_lock; // we're calling a function running on the GUI thread, so we
+                 // need MessageManagerLock for thread safety
+    piano_roll.repaint();
 }
 
 //==============================================================================
