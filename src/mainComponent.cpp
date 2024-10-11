@@ -4,7 +4,8 @@
 //==============================================================================
 MainComponent::MainComponent()
     : piano_roll(kb_state,
-                 juce::KeyboardComponentBase::verticalKeyboardFacingRight) {
+                 juce::KeyboardComponentBase::verticalKeyboardFacingRight),
+      start_time(juce::Time::getMillisecondCounterHiRes() * 0.001) {
     // Make sure you set the size of the component after
     // you add any child components.
     setSize(800, 600);
@@ -24,6 +25,23 @@ MainComponent::MainComponent()
     }
 
     addAndMakeVisible(piano_roll);
+
+    // TODO: move this to prepareToPlay() instead
+    auto midi_inputs = juce::MidiInput::getAvailableDevices();
+    juce::String midiName = "";
+    for (auto i : midi_inputs) {
+        //   if (device_manager.isMidiInputDeviceEnabled(i.identifier)) {
+        //     device_manager.setMidiInputDeviceEnabled(i.identifier, true);
+        //}
+        //
+        midiName = i.name;
+        device_manager.setMidiInputDeviceEnabled(i.identifier, true);
+        device_manager.addMidiInputDeviceCallback(i.identifier, this);
+    }
+
+    DBG("activating device " << midiName);
+
+    kb_state.addListener(this);
 }
 
 MainComponent::~MainComponent() {
@@ -31,17 +49,25 @@ MainComponent::~MainComponent() {
     shutdownAudio();
 }
 
+void MainComponent::handleNoteOn(juce::MidiKeyboardState *src, int a, int b,
+                                 float x) {
+    // do nothing
+}
+
+void MainComponent::handleNoteOff(juce::MidiKeyboardState *src, int a, int b,
+                                  float x) {
+    // do nothing
+    DBG("note off");
+}
+
+void MainComponent::handleIncomingMidiMessage(
+    juce::MidiInput *source, const juce::MidiMessage &message) {}
+
 //==============================================================================
 void MainComponent::prepareToPlay(int samplesPerBlockExpected,
                                   double sampleRate) {
-    // This function will be called when the audio device is started, or when
-    // its settings (i.e. sample rate, block size, etc) are changed.
-
-    // You can use this function to initialise any resources you might need,
-    // but be careful - it will be called on the audio thread, not the GUI
-    // thread.
-
-    // For more details, see the help for AudioProcessor::prepareToPlay()
+    synth.setCurrentPlaybackSampleRate(sampleRate);
+    synth.init("/home/johnston/Downloads/piano.wav");
 }
 
 void MainComponent::getNextAudioBlock(
@@ -53,6 +79,14 @@ void MainComponent::getNextAudioBlock(
     // Right now we are not producing any data, in which case we need to clear
     // the buffer (to prevent the output of random noise)
     bufferToFill.clearActiveBufferRegion();
+
+    kb_state.processNextMidiBuffer(midi_buf, bufferToFill.startSample,
+                                   bufferToFill.numSamples, true);
+
+    synth.renderNextBlock(*bufferToFill.buffer, midi_buf,
+                          bufferToFill.startSample, bufferToFill.numSamples);
+
+    midi_buf.clear();
 }
 
 void MainComponent::releaseResources() {

@@ -20,6 +20,12 @@ class piano_roll : public juce::MidiKeyboardComponent {
 };
 
 class piano_synth : public juce::Synthesiser {
-    // TODO: create a very simple sample-based piano
+  public:
+    void init(juce::String sample_path);
+
+  private:
+    juce::String piano_sample_path;
+    juce::AudioFormatManager afm;
+    std::unique_ptr<juce::AudioFormatReader> reader;
 };
 } // namespace jelodyne::piano

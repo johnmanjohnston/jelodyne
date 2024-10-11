@@ -1,4 +1,5 @@
 #include "piano.h"
+#include "juce_core/juce_core.h"
 #include "juce_graphics/juce_graphics.h"
 using namespace juce;
 
@@ -105,20 +106,24 @@ void jelodyne::piano::piano_roll::drawBlackNote(int midiNoteNumber, Graphics &g,
         auto topIndent = 7.0f / 8.0f;
         auto w = area.getWidth();
         auto h = area.getHeight();
-
-        switch (getOrientation()) {
-            // case horizontalKeyboard:            g.fillRect(area.reduced(w *
-            // sideIndent, 0).removeFromTop(h * topIndent)); break;
-        case verticalKeyboardFacingLeft:
-            g.fillRect(
-                area.reduced(0, h * sideIndent).removeFromRight(w * topIndent));
-            break;
-            // case verticalKeyboardFacingRight:
-            //   g.fillRect(
-            // area.reduced(0, h * sideIndent).removeFromLeft(w * topIndent));
-            // break;
-        default:
-            break;
-        }
     }
+}
+
+void jelodyne::piano::piano_synth::init(juce::String sample_path) {
+    this->piano_sample_path = sample_path;
+
+    this->addVoice(new juce::SamplerVoice());
+
+    if (afm.findFormatForFileExtension("wav") == nullptr)
+        afm.registerBasicFormats();
+
+    BigInteger noteRange;
+    noteRange.setRange(0, 128, true);
+
+    juce::File file(piano_sample_path);
+    reader =
+        std::unique_ptr<juce::AudioFormatReader>(afm.createReaderFor(file));
+
+    this->addSound(new juce::SamplerSound("default", *reader, noteRange, 60,
+                                          0.0, 0.1, 5.0));
 }
