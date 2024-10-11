@@ -112,7 +112,8 @@ void jelodyne::piano::piano_roll::drawBlackNote(int midiNoteNumber, Graphics &g,
 void jelodyne::piano::piano_synth::init(juce::String sample_path) {
     this->piano_sample_path = sample_path;
 
-    this->addVoice(new juce::SamplerVoice());
+    for (int i = 0; i < 5; i++)
+        this->addVoice(new juce::SamplerVoice());
 
     if (afm.findFormatForFileExtension("wav") == nullptr)
         afm.registerBasicFormats();

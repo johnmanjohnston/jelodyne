@@ -52,6 +52,7 @@ MainComponent::~MainComponent() {
 void MainComponent::handleNoteOn(juce::MidiKeyboardState *src, int a, int b,
                                  float x) {
     // do nothing
+    DBG("note on");
 }
 
 void MainComponent::handleNoteOff(juce::MidiKeyboardState *src, int a, int b,
@@ -61,13 +62,18 @@ void MainComponent::handleNoteOff(juce::MidiKeyboardState *src, int a, int b,
 }
 
 void MainComponent::handleIncomingMidiMessage(
-    juce::MidiInput *source, const juce::MidiMessage &message) {}
+    juce::MidiInput *source, const juce::MidiMessage &message) {
+    kb_state.processNextMidiEvent(message);
+
+    midi_buf.addEvent(message, 0);
+}
 
 //==============================================================================
 void MainComponent::prepareToPlay(int samplesPerBlockExpected,
                                   double sampleRate) {
     synth.setCurrentPlaybackSampleRate(sampleRate);
     synth.init("/home/johnston/Downloads/piano.wav");
+    kb_state.reset();
 }
 
 void MainComponent::getNextAudioBlock(
