@@ -40,25 +40,11 @@ MainComponent::MainComponent()
     }
 
     DBG("activating device " << midiName);
-
-    kb_state.addListener(this);
 }
 
 MainComponent::~MainComponent() {
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
-}
-
-void MainComponent::handleNoteOn(juce::MidiKeyboardState *src, int a, int b,
-                                 float x) {
-    // do nothing
-    DBG("note on");
-}
-
-void MainComponent::handleNoteOff(juce::MidiKeyboardState *src, int a, int b,
-                                  float x) {
-    // do nothing
-    DBG("note off");
 }
 
 void MainComponent::handleIncomingMidiMessage(
@@ -79,6 +65,8 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected,
     synth.setCurrentPlaybackSampleRate(sampleRate);
     synth.init("/home/johnston/Downloads/piano.wav");
     kb_state.reset();
+
+    clip.path = "/home/johnston/Downloads/acapella.wav";
 }
 
 void MainComponent::getNextAudioBlock(

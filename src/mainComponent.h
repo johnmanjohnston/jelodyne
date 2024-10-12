@@ -1,5 +1,6 @@
 #pragma once
 
+#include "clip.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_audio_utils/juce_audio_utils.h"
 #include "piano.h"
@@ -11,8 +12,7 @@
     your controls and content.
 */
 class MainComponent : public juce::AudioAppComponent,
-                      public juce::MidiInputCallback,
-                      public juce::MidiKeyboardState::Listener {
+                      public juce::MidiInputCallback {
   public:
     //==============================================================================
     MainComponent();
@@ -39,13 +39,11 @@ class MainComponent : public juce::AudioAppComponent,
 
     juce::Random random;
 
+    jelodyne::clip clip;
+
     void handleIncomingMidiMessage(juce::MidiInput *source,
                                    const juce::MidiMessage &message) override;
 
-    void handleNoteOn(juce::MidiKeyboardState *src, int a, int b,
-                      float x) override;
-    void handleNoteOff(juce::MidiKeyboardState *src, int a, int b,
-                       float x) override;
     //==============================================================================
     // Your private member variables go here...
 
