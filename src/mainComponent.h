@@ -3,6 +3,7 @@
 #include "clip.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_audio_utils/juce_audio_utils.h"
+#include "juce_graphics/juce_graphics.h"
 #include "piano.h"
 #include <JuceHeader.h>
 
@@ -12,7 +13,8 @@
     your controls and content.
 */
 class MainComponent : public juce::AudioAppComponent,
-                      public juce::MidiInputCallback {
+                      public juce::MidiInputCallback,
+                      private juce::Timer {
   public:
     //==============================================================================
     MainComponent();
@@ -43,6 +45,22 @@ class MainComponent : public juce::AudioAppComponent,
 
     void handleIncomingMidiMessage(juce::MidiInput *source,
                                    const juce::MidiMessage &message) override;
+
+    // pitch detection
+    static constexpr auto fftOrder = 10;
+    static constexpr auto fftSize = 1 << fftOrder;
+    juce::dsp::FFT forwardFFT;
+    juce::Image spectrogramImage;
+
+    std::array<float, fftSize> fifo;        // [4]
+    std::array<float, fftSize * 2> fftData; // [5]
+    int fifoIndex = 0;                      // [6]
+    bool nextFFTBlockReady = false;         // [7]
+
+    void pushNextSampleIntoFifo(float sample);
+    void drawNextLineOfSpectrogram();
+
+    void timerCallback() override;
 
     //==============================================================================
     // Your private member variables go here...
