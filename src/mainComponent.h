@@ -47,7 +47,7 @@ class MainComponent : public juce::AudioAppComponent,
                                    const juce::MidiMessage &message) override;
 
     // pitch detection
-    static constexpr auto fftOrder = 10;
+    static constexpr auto fftOrder = 13;
     static constexpr auto fftSize = 1 << fftOrder;
     juce::dsp::FFT forwardFFT;
     juce::Image spectrogramImage;
@@ -60,7 +60,11 @@ class MainComponent : public juce::AudioAppComponent,
     void pushNextSampleIntoFifo(float sample);
     void drawNextLineOfSpectrogram();
 
+    juce::String frequencyToNote(float frequency);
+
     void timerCallback() override;
+
+    double sample_rate;
 
     //==============================================================================
     // Your private member variables go here...
