@@ -84,6 +84,8 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected,
     kb_state.reset();
 
     clip.path = "/home/johnston/Downloads/acapella.wav";
+
+    load_file("/home/johnston/Downloads/jelodyne-testing.wav");
 }
 
 void MainComponent::getNextAudioBlock(
@@ -119,8 +121,27 @@ void MainComponent::getNextAudioBlock(
             for (auto i = 0; i < numSamples; i++) {
                 pushNextSampleIntoFifo(channelData[i]);
                 if (nextFFTBlockReady) {
-                    drawNextLineOfSpectrogram();
+                    // drawNextLineOfSpectrogram();
                     nextFFTBlockReady = false;
+
+                    forwardFFT.performFrequencyOnlyForwardTransform(
+                        fftData.data()); // [2]
+
+                    int maxIndex = 0;
+                    float maxValue = 0.0f;
+                    for (int j = 0; j < fftSize / 2; ++j) {
+                        if (fftData[(size_t)j] > maxValue) {
+                            maxValue = fftData[(size_t)j];
+                            maxIndex = j;
+                        }
+                    }
+
+                    float frequency =
+                        (float)maxIndex * this->sample_rate / fftSize;
+
+                    if (frequency != 0.f)
+                        // DBG("frequency " << frequency);
+                        DBG("note is " << frequencyToNote(frequency));
                 }
             }
             analyze_file = false;
@@ -293,9 +314,11 @@ juce::String MainComponent::frequencyToNote(float input) {
         }
     }
 
-    auto result = notes[a4_index + r_index];
-
-    return result;
+    int retval_index = a4_index + r_index;
+    if (retval_index > 110)
+        return "invalid note";
+    else
+        return notes[retval_index];
 }
 
 void MainComponent::releaseResources() {
