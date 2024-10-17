@@ -126,5 +126,5 @@ void jelodyne::piano::piano_synth::init(juce::String sample_path) {
         std::unique_ptr<juce::AudioFormatReader>(afm.createReaderFor(file));
 
     this->addSound(new juce::SamplerSound("default", *reader, noteRange, 60,
-                                          0.0, 0.1, 5.0));
+                                          0.0, 0.1, 9.0));
 }

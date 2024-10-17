@@ -43,6 +43,8 @@ MainComponent::MainComponent()
 
     DBG("activating device " << midiName);
     startTimerHz(60);
+
+    load_file("/home/johnston/Downloads/jelodyne-testing.wav");
 }
 
 void MainComponent::timerCallback() {
@@ -78,7 +80,7 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected,
     this->sample_rate = sampleRate;
 
     synth.setCurrentPlaybackSampleRate(sampleRate);
-    synth.init("/home/johnston/Downloads/piano.wav");
+    synth.init("/home/johnston/Downloads/jelodyne-testing.wav");
     kb_state.reset();
 
     clip.path = "/home/johnston/Downloads/acapella.wav";
@@ -108,6 +110,21 @@ void MainComponent::getNextAudioBlock(
 
         for (auto i = 0; i < bufferToFill.numSamples; ++i)
             pushNextSampleIntoFifo(channelData[i]);
+    }
+
+    if (analyze_file) {
+        if (file_buffer.getNumChannels() > 0) {
+            auto *channelData = file_buffer.getReadPointer(0);
+            int numSamples = file_buffer.getNumSamples();
+            for (auto i = 0; i < numSamples; i++) {
+                pushNextSampleIntoFifo(channelData[i]);
+                if (nextFFTBlockReady) {
+                    drawNextLineOfSpectrogram();
+                    nextFFTBlockReady = false;
+                }
+            }
+            analyze_file = false;
+        }
     }
 }
 
@@ -181,6 +198,28 @@ void MainComponent::drawNextLineOfSpectrogram() {
         juce::Colour col = juce::Colour::fromHSV(0, 1.f, level, 1.f);
 
         bitmap.setPixelColour(0, y, col);
+    }
+}
+
+void MainComponent::load_file(juce::String path) {
+    DBG("load_file() called");
+
+    if (afm.findFormatForFileExtension("wav") == nullptr)
+        afm.registerBasicFormats();
+
+    std::unique_ptr<juce::AudioFormatReader> reader(afm.createReaderFor(path));
+
+    if (reader.get() != nullptr) {
+        auto duration = reader->lengthInSamples / reader->sampleRate;
+        file_buffer.setSize((int)reader->numChannels,
+                            (int)reader->lengthInSamples);
+
+        reader->read(&file_buffer, 0, (int)reader->lengthInSamples, 0, true,
+                     true);
+
+        analyze_file = true;
+    } else {
+        DBG("READER FOR " << path << " DOES NOT EXIST");
     }
 }
 

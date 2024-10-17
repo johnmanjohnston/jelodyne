@@ -52,10 +52,10 @@ class MainComponent : public juce::AudioAppComponent,
     juce::dsp::FFT forwardFFT;
     juce::Image spectrogramImage;
 
-    std::array<float, fftSize> fifo;        // [4]
-    std::array<float, fftSize * 2> fftData; // [5]
-    int fifoIndex = 0;                      // [6]
-    bool nextFFTBlockReady = false;         // [7]
+    std::array<float, fftSize> fifo = {0};        // [4]
+    std::array<float, fftSize * 2> fftData = {0}; // [5]
+    int fifoIndex = 0;                            // [6]
+    bool nextFFTBlockReady = false;               // [7]
 
     void pushNextSampleIntoFifo(float sample);
     void drawNextLineOfSpectrogram();
@@ -65,6 +65,11 @@ class MainComponent : public juce::AudioAppComponent,
     void timerCallback() override;
 
     double sample_rate;
+
+    juce::AudioFormatManager afm;
+    juce::AudioBuffer<float> file_buffer;
+    void load_file(juce::String path);
+    bool analyze_file = false;
 
     //==============================================================================
     // Your private member variables go here...
