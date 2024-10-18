@@ -1,6 +1,8 @@
 #include "mainComponent.h"
+#include "note.h"
 #include "piano.h"
 #include <cmath>
+#include <iostream>
 
 //==============================================================================
 MainComponent::MainComponent()
@@ -84,8 +86,6 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected,
     kb_state.reset();
 
     clip.path = "/home/johnston/Downloads/acapella.wav";
-
-    load_file("/home/johnston/Downloads/jelodyne-testing.wav");
 }
 
 void MainComponent::getNextAudioBlock(
@@ -139,13 +139,18 @@ void MainComponent::getNextAudioBlock(
                     float frequency =
                         (float)maxIndex * this->sample_rate / fftSize;
 
-                    if (frequency != 0.f)
-                        // DBG("frequency " << frequency);
-                        DBG("note is " << frequencyToNote(frequency));
+                    if (frequency > 0.f) {
+                        jelodyne::note note;
+                        note.note_name = frequencyToNote(frequency);
+                        note.start_sample = i;
+                        this->file_notes.push_back(note);
+                    }
                 }
             }
             analyze_file = false;
         }
+        DBG("analysis for file done.");
+        jelodyne::consolidate_duplicate_notes(this->file_notes);
     }
 }
 
@@ -167,7 +172,10 @@ void MainComponent::pushNextSampleIntoFifo(float sample) {
     fifo[(size_t)fifoIndex++] = sample; // [9]
 }
 
+// TODO: we don't need this function--we're not rendering any spectrograms, so
+// get rid of it
 void MainComponent::drawNextLineOfSpectrogram() {
+    return;
     auto rightHandEdge = spectrogramImage.getWidth() - 1;
     auto imageHeight = spectrogramImage.getHeight();
 

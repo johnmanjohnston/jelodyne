@@ -4,6 +4,7 @@
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_audio_utils/juce_audio_utils.h"
 #include "juce_graphics/juce_graphics.h"
+#include "note.h"
 #include "piano.h"
 #include <JuceHeader.h>
 
@@ -70,6 +71,8 @@ class MainComponent : public juce::AudioAppComponent,
     juce::AudioBuffer<float> file_buffer;
     void load_file(juce::String path);
     bool analyze_file = false;
+
+    std::vector<jelodyne::note> file_notes;
 
     //==============================================================================
     // Your private member variables go here...
