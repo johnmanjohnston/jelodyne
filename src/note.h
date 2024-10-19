@@ -4,9 +4,10 @@
 namespace jelodyne {
 class note {
   public:
-    juce::String note_name;
-    int start_sample;
+    int note_number = -1;
+    int start_sample = -1;
+    int end_sample = -1;
 };
 
-void consolidate_duplicate_notes(std::vector<note> notes);
+void consolidate_duplicate_notes(std::vector<note> &notes);
 } // namespace jelodyne

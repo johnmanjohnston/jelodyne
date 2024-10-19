@@ -1,8 +1,9 @@
 #include "mainComponent.h"
 #include "note.h"
 #include "piano.h"
+#include "utility"
+#include "utility.h"
 #include <cmath>
-#include <iostream>
 
 //==============================================================================
 MainComponent::MainComponent()
@@ -139,18 +140,42 @@ void MainComponent::getNextAudioBlock(
                     float frequency =
                         (float)maxIndex * this->sample_rate / fftSize;
 
-                    if (frequency > 0.f) {
+                    if (frequency > 1.f) {
                         jelodyne::note note;
-                        note.note_name = frequencyToNote(frequency);
-                        note.start_sample = i;
-                        this->file_notes.push_back(note);
+                        note.note_number = jelodyne::note_name_to_number(
+                            frequencyToNote(frequency), 3);
+
+                        if (note.note_number != -1) {
+                            note.start_sample = i;
+
+                            this->file_notes.push_back(note);
+                        }
                     }
                 }
             }
             analyze_file = false;
         }
         DBG("analysis for file done.");
+
+        for (std::vector<jelodyne::note>::size_type i = 0;
+             i != file_notes.size(); i++) {
+
+            if (i + 1 != file_notes.size()) {
+                file_notes[i].end_sample = file_notes[i + 1].start_sample;
+            }
+        }
+
         jelodyne::consolidate_duplicate_notes(this->file_notes);
+        jelodyne::consolidate_duplicate_notes(this->file_notes);
+        jelodyne::consolidate_duplicate_notes(this->file_notes);
+        jelodyne::consolidate_duplicate_notes(this->file_notes);
+
+        for (auto n : file_notes) {
+            DBG("note " << juce::MidiMessage::getMidiNoteName(n.note_number,
+                                                              true, true, 3)
+                        << " starts at " << n.start_sample << " and ends at "
+                        << n.end_sample);
+        }
     }
 }
 
@@ -174,6 +199,7 @@ void MainComponent::pushNextSampleIntoFifo(float sample) {
 
 // TODO: we don't need this function--we're not rendering any spectrograms, so
 // get rid of it
+
 void MainComponent::drawNextLineOfSpectrogram() {
     return;
     auto rightHandEdge = spectrogramImage.getWidth() - 1;
