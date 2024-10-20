@@ -140,13 +140,20 @@ void MainComponent::getNextAudioBlock(
                     float frequency =
                         (float)maxIndex * this->sample_rate / fftSize;
 
-                    if (frequency > 1.f) {
+                    // TODO: optimize the insertion of notes into the notes
+                    // vector--get rid of the conversion from frequency to
+                    // string to note number and instead, just directly convert
+                    // to note number
+
+                    // only add to notes if notes is between C2 and C5
+                    if (frequency > 65.f && frequency < 520) {
                         jelodyne::note note;
                         note.note_number = jelodyne::note_name_to_number(
                             frequencyToNote(frequency), 3);
 
                         if (note.note_number != -1) {
                             note.start_sample = i;
+                            note.original_frequency = frequency;
 
                             this->file_notes.push_back(note);
                         }
@@ -157,6 +164,7 @@ void MainComponent::getNextAudioBlock(
         }
         DBG("analysis for file done.");
 
+        // set end samples for all notes
         for (std::vector<jelodyne::note>::size_type i = 0;
              i != file_notes.size(); i++) {
 
@@ -170,11 +178,24 @@ void MainComponent::getNextAudioBlock(
         jelodyne::consolidate_duplicate_notes(this->file_notes);
         jelodyne::consolidate_duplicate_notes(this->file_notes);
 
+        /*
         for (auto n : file_notes) {
             DBG("note " << juce::MidiMessage::getMidiNoteName(n.note_number,
                                                               true, true, 3)
                         << " starts at " << n.start_sample << " and ends at "
-                        << n.end_sample);
+                        << n.end_sample << " and has an original frequency of "
+                        << n.original_frequency);
+        }*/
+
+        for (std::vector<jelodyne::note>::size_type i = 0;
+             i != file_notes.size(); i++) {
+
+            DBG("note is " << juce::MidiMessage::getMidiNoteName(
+                                  file_notes[i].note_number, true, true, 3)
+                           << " and number lasts "
+                           << (file_notes[i].end_sample -
+                               file_notes[i].start_sample)
+                           << " samples");
         }
     }
 }
@@ -197,8 +218,8 @@ void MainComponent::pushNextSampleIntoFifo(float sample) {
     fifo[(size_t)fifoIndex++] = sample; // [9]
 }
 
-// TODO: we don't need this function--we're not rendering any spectrograms, so
-// get rid of it
+// TODO: we don't need this function--we're not rendering any spectrograms,
+// so get rid of it
 
 void MainComponent::drawNextLineOfSpectrogram() {
     return;
@@ -364,8 +385,8 @@ void MainComponent::releaseResources() {
 
 //==============================================================================
 void MainComponent::paint(juce::Graphics &g) {
-    // (Our component is opaque, so we must completely fill the background with
-    // a solid colour)
+    // (Our component is opaque, so we must completely fill the background
+    // with a solid colour)
     g.fillAll(
         getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 
