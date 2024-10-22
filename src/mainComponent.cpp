@@ -10,13 +10,9 @@ MainComponent::MainComponent()
     : piano_roll(kb_state,
                  juce::KeyboardComponentBase::verticalKeyboardFacingRight),
       start_time(juce::Time::getMillisecondCounterHiRes() * 0.001),
-      forwardFFT(fftOrder), spectrogramImage(juce::Image::RGB, 512, 512, true) {
-    // Make sure you set the size of the component after
-    // you add any child components.
-    setSize(800, 600);
+      forwardFFT(fftOrder) {
+    setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    // Some platforms require permissions to open input channels so request that
-    // here
     if (juce::RuntimePermissions::isRequired(
             juce::RuntimePermissions::recordAudio) &&
         !juce::RuntimePermissions::isGranted(
@@ -25,11 +21,11 @@ MainComponent::MainComponent()
             juce::RuntimePermissions::recordAudio,
             [&](bool granted) { setAudioChannels(granted ? 2 : 0, 2); });
     } else {
-        // Specify the number of input and output channels that we want to open
         setAudioChannels(2, 2);
     }
 
     addAndMakeVisible(piano_roll);
+    piano_roll.setKeyWidth(22.f);
 
     // TODO: move this to prepareToPlay() instead
     auto midi_inputs = juce::MidiInput::getAvailableDevices();
@@ -45,24 +41,13 @@ MainComponent::MainComponent()
     }
 
     DBG("activating device " << midiName);
-    startTimerHz(60);
 
     load_file("/home/johnston/Downloads/jelodyne-testing.wav");
-}
-
-void MainComponent::timerCallback() {
-    // timer callback
-    if (nextFFTBlockReady) {
-        drawNextLineOfSpectrogram();
-        nextFFTBlockReady = false;
-        repaint();
-    }
 }
 
 MainComponent::~MainComponent() {
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
-    stopTimer();
 }
 
 void MainComponent::handleIncomingMidiMessage(
@@ -173,6 +158,7 @@ void MainComponent::getNextAudioBlock(
             }
         }
 
+        // TODO: cleanup
         jelodyne::consolidate_duplicate_notes(this->file_notes);
         jelodyne::consolidate_duplicate_notes(this->file_notes);
         jelodyne::consolidate_duplicate_notes(this->file_notes);
@@ -195,12 +181,15 @@ void MainComponent::getNextAudioBlock(
         for (std::vector<jelodyne::note>::size_type i = 0;
              i != file_notes.size(); i++) {
 
-            DBG("note is " << juce::MidiMessage::getMidiNoteName(
-                                  file_notes[i].note_number, true, true, 3)
-                           << " and number lasts "
-                           << (file_notes[i].end_sample -
-                               file_notes[i].start_sample)
-                           << " samples");
+            DBG("note is "
+                << juce::MidiMessage::getMidiNoteName(file_notes[i].note_number,
+                                                      true, true, 3)
+                << " and number lasts "
+                << (file_notes[i].end_sample - file_notes[i].start_sample)
+                << " which is "
+                << (file_notes[i].end_sample - file_notes[i].start_sample) /
+                       41000.0
+                << " seconds" << " samples");
         }
     }
 }
@@ -223,65 +212,6 @@ void MainComponent::pushNextSampleIntoFifo(float sample) {
     fifo[(size_t)fifoIndex++] = sample; // [9]
 }
 
-// TODO: we don't need this function--we're not rendering any spectrograms,
-// so get rid of it
-
-void MainComponent::drawNextLineOfSpectrogram() {
-    return;
-    auto rightHandEdge = spectrogramImage.getWidth() - 1;
-    auto imageHeight = spectrogramImage.getHeight();
-
-    // move image leftwards
-    spectrogramImage.moveImageSection(0, 0, 1, 0, rightHandEdge,
-                                      imageHeight); // [1]
-
-    // then render our FFT data..
-    forwardFFT.performFrequencyOnlyForwardTransform(fftData.data()); // [2]
-
-    int maxIndex = 0;
-    float maxValue = 0.0f;
-    for (int i = 0; i < fftSize / 2; ++i) {
-        if (fftData[(size_t)i] > maxValue) {
-            maxValue = fftData[(size_t)i];
-            maxIndex = i;
-        }
-    }
-
-    float frequency = (float)maxIndex * this->sample_rate / fftSize;
-
-    if (frequency != 0.f)
-        // DBG("frequency " << frequency);
-        DBG("note is " << frequencyToNote(frequency));
-
-    // specrogram rendering code
-    // find the range of values produced, so we can scale our rendering to
-    // show up the detail clearly
-    auto maxLevel = juce::FloatVectorOperations::findMinAndMax(
-        fftData.data(), fftSize / 2); // [3]
-
-    juce::Image::BitmapData bitmap{spectrogramImage,
-                                   rightHandEdge,
-                                   0,
-                                   1,
-                                   imageHeight,
-                                   juce::Image::BitmapData::writeOnly}; // [4]
-
-    for (auto y = 1; y < imageHeight; ++y) // [5]
-    {
-        auto skewedProportionY =
-            1.0f - std::exp(std::log((float)y / (float)imageHeight) * 0.2f);
-        auto fftDataIndex = (size_t)juce::jlimit(
-            0, fftSize / 2, (int)(skewedProportionY * fftSize / 2));
-        auto level =
-            juce::jmap(fftData[fftDataIndex], 0.0f,
-                       juce::jmax(maxLevel.getEnd(), 1e-5f), 0.0f, 1.0f);
-
-        juce::Colour col = juce::Colour::fromHSV(0, 1.f, level, 1.f);
-
-        bitmap.setPixelColour(0, y, col);
-    }
-}
-
 void MainComponent::load_file(juce::String path) {
     DBG("load_file() called");
 
@@ -297,7 +227,6 @@ void MainComponent::load_file(juce::String path) {
 
         reader->read(&file_buffer, 0, (int)reader->lengthInSamples, 0, true,
                      true);
-
         analyze_file = true;
     } else {
         DBG("READER FOR " << path << " DOES NOT EXIST");
@@ -390,17 +319,12 @@ void MainComponent::releaseResources() {
 
 //==============================================================================
 void MainComponent::paint(juce::Graphics &g) {
-    // (Our component is opaque, so we must completely fill the background
-    // with a solid colour)
-    g.fillAll(
-        getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+    g.fillAll(juce::Colours::black);
 
     g.drawText("this text is being drawn from code written in neovim", 10, 10,
                400, 10, juce::Justification::left, false);
 
-    g.drawImage(spectrogramImage, 20, 20, 400, 400, 0, 0,
-                spectrogramImage.getWidth(), spectrogramImage.getHeight(),
-                false);
+    DBG("paint called");
 }
 
-void MainComponent::resized() { piano_roll.setBounds(0, 0, 64, 600); }
+void MainComponent::resized() { piano_roll.setBounds(0, 0, 64, WINDOW_HEIGHT); }

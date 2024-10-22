@@ -14,8 +14,7 @@
     your controls and content.
 */
 class MainComponent : public juce::AudioAppComponent,
-                      public juce::MidiInputCallback,
-                      private juce::Timer {
+                      public juce::MidiInputCallback {
   public:
     //==============================================================================
     MainComponent();
@@ -30,6 +29,9 @@ class MainComponent : public juce::AudioAppComponent,
     //==============================================================================
     void paint(juce::Graphics &g) override;
     void resized() override;
+
+    int WINDOW_HEIGHT = 720;
+    int WINDOW_WIDTH = 1280;
 
     jelodyne::piano::piano_roll piano_roll;
     juce::MidiKeyboardState kb_state;
@@ -51,7 +53,6 @@ class MainComponent : public juce::AudioAppComponent,
     static constexpr auto fftOrder = 13;
     static constexpr auto fftSize = 1 << fftOrder;
     juce::dsp::FFT forwardFFT;
-    juce::Image spectrogramImage;
 
     std::array<float, fftSize> fifo = {0};        // [4]
     std::array<float, fftSize * 2> fftData = {0}; // [5]
@@ -59,11 +60,9 @@ class MainComponent : public juce::AudioAppComponent,
     bool nextFFTBlockReady = false;               // [7]
 
     void pushNextSampleIntoFifo(float sample);
-    void drawNextLineOfSpectrogram();
+    // void drawNextLineOfSpectrogram();
 
     juce::String frequencyToNote(float frequency);
-
-    void timerCallback() override;
 
     double sample_rate;
 
