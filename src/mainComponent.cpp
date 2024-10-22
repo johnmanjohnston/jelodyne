@@ -186,6 +186,11 @@ void MainComponent::getNextAudioBlock(
                         << n.end_sample << " and has an original frequency of "
                         << n.original_frequency);
         }*/
+        jelodyne::remove_pitch_artifacts(this->file_notes, this->fftSize);
+
+        jelodyne::consolidate_duplicate_notes(this->file_notes);
+        jelodyne::consolidate_duplicate_notes(this->file_notes);
+        jelodyne::consolidate_duplicate_notes(this->file_notes);
 
         for (std::vector<jelodyne::note>::size_type i = 0;
              i != file_notes.size(); i++) {
