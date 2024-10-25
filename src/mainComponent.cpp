@@ -25,7 +25,8 @@ MainComponent::MainComponent()
     }
 
     addAndMakeVisible(piano_roll);
-    piano_roll.setKeyWidth(22.f);
+    piano_roll.setKeyWidth(32.7f);
+    piano_roll.setAvailableRange(12 * (2 + 2), 12 * (5 + 2)); // C2 to C5
 
     // TODO: move this to prepareToPlay() instead
     auto midi_inputs = juce::MidiInput::getAvailableDevices();
