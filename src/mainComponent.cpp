@@ -322,10 +322,35 @@ void MainComponent::releaseResources() {
 void MainComponent::paint(juce::Graphics &g) {
     g.fillAll(juce::Colours::black);
 
-    g.drawText("this text is being drawn from code written in neovim", 10, 10,
-               400, 10, juce::Justification::left, false);
+    const int startNote = piano_roll.getRangeStart();
+    const int endNote = piano_roll.getRangeEnd();
+    int cellHeight = 19;
+    int deviation = 0;
+    int deviationInterval = 10;
+    int yOffset = 8;
 
-    DBG("paint called");
+    for (int i = 0; i <= endNote - startNote; ++i) {
+        // g.setColour(juce::Colours::white);
+
+        bool isBlack = juce::MidiMessage::isMidiNoteBlack(i + startNote + 4);
+        g.setColour(isBlack ? juce::Colours::darkgrey
+                            : juce::Colours::lightgrey);
+
+        juce::Rectangle<int> drawArea;
+        drawArea.setBounds(64, (i * cellHeight) + deviation + yOffset, 20,
+                           cellHeight);
+
+        g.drawRect(drawArea);
+        g.setFont(16.f);
+        g.drawText(juce::String(i), drawArea, NULL, false);
+
+        if (i % deviationInterval == 0 && i < (endNote - startNote)) {
+            deviation += 2;
+            // DBG("deviation is being incrememnted");
+        }
+    }
+    DBG("deviation is " << deviation);
+    // DBG("paint called");
 }
 
 void MainComponent::resized() { piano_roll.setBounds(0, 0, 64, WINDOW_HEIGHT); }

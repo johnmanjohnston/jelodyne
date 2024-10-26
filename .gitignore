@@ -7,3 +7,6 @@ build/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+.vscode/
+.cache/
+vgcore*
