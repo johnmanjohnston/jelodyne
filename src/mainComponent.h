@@ -6,6 +6,9 @@
 #include "juce_graphics/juce_graphics.h"
 #include "note.h"
 #include "piano.h"
+
+#include "noteComponent.h"
+
 #include <JuceHeader.h>
 
 //==============================================================================
@@ -32,6 +35,8 @@ class MainComponent : public juce::AudioAppComponent,
 
     int WINDOW_HEIGHT = 720;
     int WINDOW_WIDTH = 1280;
+
+    jelodyne::NoteComponent nc;
 
     jelodyne::piano::piano_roll piano_roll;
     juce::MidiKeyboardState kb_state;

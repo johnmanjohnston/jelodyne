@@ -35,7 +35,8 @@ target_sources(jelodyne PRIVATE
     src/clip.cpp
     src/piano.cpp
     src/note.cpp
-    src/utility.cpp)
+    src/utility.cpp
+    src/noteComponent.cpp)
 
 
 target_compile_definitions(jelodyne PRIVATE

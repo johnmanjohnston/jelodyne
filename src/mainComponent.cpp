@@ -1,13 +1,13 @@
 #include "mainComponent.h"
 #include "note.h"
+// #include "noteComponent.h"
 #include "piano.h"
-#include "utility"
 #include "utility.h"
 #include <cmath>
-
 //==============================================================================
 MainComponent::MainComponent()
-    : piano_roll(kb_state,
+    : nc(),
+      piano_roll(kb_state,
                  juce::KeyboardComponentBase::verticalKeyboardFacingRight),
       start_time(juce::Time::getMillisecondCounterHiRes() * 0.001),
       forwardFFT(fftOrder) {
@@ -27,6 +27,8 @@ MainComponent::MainComponent()
     addAndMakeVisible(piano_roll);
     piano_roll.setKeyWidth(32.7f);
     piano_roll.setAvailableRange(12 * (2 + 2), 12 * (5 + 2)); // C2 to C5
+
+    addAndMakeVisible(nc);
 
     // TODO: move this to prepareToPlay() instead
     auto midi_inputs = juce::MidiInput::getAvailableDevices();
@@ -328,29 +330,60 @@ void MainComponent::paint(juce::Graphics &g) {
     int deviation = 0;
     int deviationInterval = 10;
     int yOffset = 8;
+    int cellWidth = 22;
+    g.setFont(16.f);
 
+    // TODO: move the creation of MIDI note cells (and drawing notes on those
+    // cells) into its own seperate component
     for (int i = 0; i <= endNote - startNote; ++i) {
         // g.setColour(juce::Colours::white);
 
-        bool isBlack = juce::MidiMessage::isMidiNoteBlack(i + startNote + 4);
+        int noteNumber = endNote - i;
+
+        bool isBlack = juce::MidiMessage::isMidiNoteBlack(
+            noteNumber); // why add 4? idfk but it works
         g.setColour(isBlack ? juce::Colours::darkgrey
                             : juce::Colours::lightgrey);
 
         juce::Rectangle<int> drawArea;
-        drawArea.setBounds(64, (i * cellHeight) + deviation + yOffset, 20,
-                           cellHeight);
-
-        g.drawRect(drawArea);
-        g.setFont(16.f);
-        g.drawText(juce::String(i), drawArea, NULL, false);
+        drawArea.setBounds(64, (i * cellHeight) + deviation + yOffset,
+                           cellWidth, cellHeight);
 
         if (i % deviationInterval == 0 && i < (endNote - startNote)) {
             deviation += 2;
             // DBG("deviation is being incrememnted");
         }
+
+        for (int x = 0; x < (getWidth() - 64) / cellWidth; ++x) {
+            drawArea.setX(64 + (x * cellWidth));
+
+            g.setOpacity(.4f);
+            g.fillRect(drawArea);
+
+            g.setOpacity(1.f);
+            g.drawRect(drawArea);
+
+            // g.drawText(juce::String(i), drawArea, NULL, false);
+            // g.drawText(
+            //  juce::MidiMessage::getMidiNoteName(endNote - i, true, false, 4),
+            // drawArea, NULL, false);
+        }
     }
-    DBG("deviation is " << deviation);
+
+    // TODO: when rendering notes, make a system to calculate the deviation for
+    // the cells
+    for (auto n : file_notes) {
+        DBG("iterating in amincomponent draw" << n.note_number);
+        juce::Rectangle<int> drawArea;
+        drawArea.setBounds(64, cellHeight * (endNote - n.note_number + 1),
+                           cellWidth, cellHeight);
+        g.drawText("ntoe", drawArea, NULL, false);
+    }
+    // DBG("deviation is " << deviation);
     // DBG("paint called");
 }
 
-void MainComponent::resized() { piano_roll.setBounds(0, 0, 64, WINDOW_HEIGHT); }
+void MainComponent::resized() {
+    piano_roll.setBounds(0, 0, 64, WINDOW_HEIGHT);
+    nc.setBounds(50, 50, 200, 200);
+}

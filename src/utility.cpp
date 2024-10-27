@@ -11,7 +11,7 @@ int jelodyne::note_name_to_number(juce::String keyName,
     int keyNumber, octave = 0, numPos = keyName.indexOfAnyOf("01234567890 -");
 
     if (numPos == 0)
-        keyNumber = keyName.getIntValue(); // apparently already a number!
+        keyNumber = keyName.getIntValue();
 
     else {
         if (numPos > 0) {
@@ -26,10 +26,6 @@ int jelodyne::note_name_to_number(juce::String keyName,
         String name(keyName.substring(0, numPos).trim().toUpperCase());
 
         keyNumber = StringArray(noteNames, 12).indexOf(name) % 12;
-
-        if (keyNumber < 0) {
-            DBG("Phoney keyname: " << keyName);
-        }
     }
 
     return keyNumber + octave * 12;
