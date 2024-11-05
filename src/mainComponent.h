@@ -78,6 +78,7 @@ class MainComponent : public juce::AudioAppComponent,
 
     std::vector<jelodyne::note> file_notes;
 
+    int getYCoordinateForNote(int noteNumber, int startNote, int endNote);
     //==============================================================================
     // Your private member variables go here...
 

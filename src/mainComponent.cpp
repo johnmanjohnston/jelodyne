@@ -327,8 +327,6 @@ void MainComponent::paint(juce::Graphics &g) {
     const int startNote = piano_roll.getRangeStart();
     const int endNote = piano_roll.getRangeEnd();
     int cellHeight = 19;
-    int deviation = 0;
-    int deviationInterval = 10;
     int yOffset = 8;
     int cellWidth = 22;
     g.setFont(16.f);
@@ -340,19 +338,14 @@ void MainComponent::paint(juce::Graphics &g) {
 
         int noteNumber = endNote - i;
 
-        bool isBlack = juce::MidiMessage::isMidiNoteBlack(
-            noteNumber); // why add 4? idfk but it works
+        bool isBlack = juce::MidiMessage::isMidiNoteBlack(noteNumber);
         g.setColour(isBlack ? juce::Colours::darkgrey
                             : juce::Colours::lightgrey);
 
-        juce::Rectangle<int> drawArea;
-        drawArea.setBounds(64, (i * cellHeight) + deviation + yOffset,
-                           cellWidth, cellHeight);
+        auto yVal = getYCoordinateForNote(noteNumber, startNote, endNote);
 
-        if (i % deviationInterval == 0 && i < (endNote - startNote)) {
-            deviation += 2;
-            // DBG("deviation is being incrememnted");
-        }
+        juce::Rectangle<int> drawArea;
+        drawArea.setBounds(64, yVal, cellWidth, cellHeight);
 
         for (int x = 0; x < (getWidth() - 64) / cellWidth; ++x) {
             drawArea.setX(64 + (x * cellWidth));
@@ -373,14 +366,29 @@ void MainComponent::paint(juce::Graphics &g) {
     // TODO: when rendering notes, make a system to calculate the deviation for
     // the cells
     for (auto n : file_notes) {
-        DBG("iterating in amincomponent draw" << n.note_number);
+        // DBG("iterating in amincomponent draw" << n.note_number);
         juce::Rectangle<int> drawArea;
-        drawArea.setBounds(64, cellHeight * (endNote - n.note_number + 1),
-                           cellWidth, cellHeight);
+        drawArea.setBounds(
+            64, (getYCoordinateForNote(n.note_number, startNote, endNote)),
+            cellWidth, cellHeight);
         g.drawText("ntoe", drawArea, NULL, false);
+        g.setColour(juce::Colours::green);
+        g.fillRect(drawArea);
     }
     // DBG("deviation is " << deviation);
     // DBG("paint called");
+}
+
+int MainComponent::getYCoordinateForNote(int noteNumber, int startNote,
+                                         int endNote) {
+    // TODO: look for optimizations in this function
+    float preciseCellHeight = 19.2f;
+    int yValueWithoutOffset =
+        ((float)((float)endNote - noteNumber) * preciseCellHeight);
+
+    int yOffset = 8;
+
+    return yValueWithoutOffset + yOffset;
 }
 
 void MainComponent::resized() {
