@@ -6,9 +6,10 @@ namespace jelodyne {
 class NoteComponent : public juce::Component {
   public:
     NoteComponent();
+    juce::Rectangle<int> componentPosition;
     void paint(juce::Graphics &g) override;
     void mouseEnter(const juce::MouseEvent &event) override;
-    // void mouseExit(const juce::MouseEvent &event) override;
+    void mouseExit(const juce::MouseEvent &event) override;
 
     jelodyne::note noteData;
 

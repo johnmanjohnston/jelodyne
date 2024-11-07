@@ -1,13 +1,14 @@
 #include "mainComponent.h"
 #include "note.h"
-// #include "noteComponent.h"
+#include "noteComponent.h"
 #include "piano.h"
 #include "utility.h"
 #include <cmath>
+#include <vector>
+
 //==============================================================================
 MainComponent::MainComponent()
-    : nc(),
-      piano_roll(kb_state,
+    : piano_roll(kb_state,
                  juce::KeyboardComponentBase::verticalKeyboardFacingRight),
       start_time(juce::Time::getMillisecondCounterHiRes() * 0.001),
       forwardFFT(fftOrder) {
@@ -28,7 +29,7 @@ MainComponent::MainComponent()
     piano_roll.setKeyWidth(32.7f);
     piano_roll.setAvailableRange(12 * (2 + 2), 12 * (5 + 2)); // C2 to C5
 
-    addAndMakeVisible(nc);
+    // addAndMakeVisible(nc);
 
     // TODO: move this to prepareToPlay() instead
     auto midi_inputs = juce::MidiInput::getAvailableDevices();
@@ -240,6 +241,8 @@ juce::String MainComponent::frequencyToNote(float input) {
     // yoink implementation used in https://www.phys.unsw.edu.au/music/note/
     // (see page source to find orginal implementation)
 
+    // TODO: optmize this function--notes[] has many elements which aren't even
+    // humanly possible to sing, so get rid of them
     double a4 = 440.0;
     int a4_index = 57;
 
@@ -327,7 +330,6 @@ void MainComponent::paint(juce::Graphics &g) {
     const int startNote = piano_roll.getRangeStart();
     const int endNote = piano_roll.getRangeEnd();
     int cellHeight = 19;
-    int yOffset = 8;
     int cellWidth = 22;
     g.setFont(16.f);
 
@@ -342,45 +344,47 @@ void MainComponent::paint(juce::Graphics &g) {
         g.setColour(isBlack ? juce::Colours::darkgrey
                             : juce::Colours::lightgrey);
 
-        auto yVal = getYCoordinateForNote(noteNumber, startNote, endNote);
+        auto yVal = getYCoordinateForNote(noteNumber, endNote);
 
         juce::Rectangle<int> drawArea;
-        drawArea.setBounds(64, yVal, cellWidth, cellHeight);
+        drawArea.setBounds(midiKeyboardWidth, yVal, cellWidth, cellHeight);
 
-        for (int x = 0; x < (getWidth() - 64) / cellWidth; ++x) {
-            drawArea.setX(64 + (x * cellWidth));
+        for (int x = 0; x < (getWidth() - midiKeyboardWidth) / cellWidth; ++x) {
+            drawArea.setX(midiKeyboardWidth + (x * cellWidth));
 
             g.setOpacity(.4f);
             g.fillRect(drawArea);
 
             g.setOpacity(1.f);
             g.drawRect(drawArea);
-
-            // g.drawText(juce::String(i), drawArea, NULL, false);
-            // g.drawText(
-            //  juce::MidiMessage::getMidiNoteName(endNote - i, true, false, 4),
-            // drawArea, NULL, false);
         }
     }
 
-    // TODO: when rendering notes, make a system to calculate the deviation for
-    // the cells
-    for (auto n : file_notes) {
-        // DBG("iterating in amincomponent draw" << n.note_number);
-        juce::Rectangle<int> drawArea;
-        drawArea.setBounds(
-            64, (getYCoordinateForNote(n.note_number, startNote, endNote)),
-            cellWidth, cellHeight);
-        g.drawText("ntoe", drawArea, NULL, false);
-        g.setColour(juce::Colours::green);
-        g.fillRect(drawArea);
+    if (analyze_file == false && addedNoteComponents == false) {
+        this->noteComponents.resize(file_notes.size());
+
+        for (auto n : file_notes) {
+            DBG("creating NoteComponent instances...");
+            auto rect = juce::Rectangle<int>(
+                midiKeyboardWidth,
+                getYCoordinateForNote(n.note_number, endNote), cellWidth,
+                cellHeight);
+
+            auto x = std::make_unique<jelodyne::NoteComponent>();
+            x->noteData = n;
+            x->setBounds(rect);
+            addAndMakeVisible(*x);
+
+            DBG("a NoteComponent instance's position is "
+                << x->getBounds().getX());
+            this->noteComponents.push_back(std::move(x));
+        }
+
+        addedNoteComponents = true;
     }
-    // DBG("deviation is " << deviation);
-    // DBG("paint called");
 }
 
-int MainComponent::getYCoordinateForNote(int noteNumber, int startNote,
-                                         int endNote) {
+int MainComponent::getYCoordinateForNote(int noteNumber, int endNote) {
     // TODO: look for optimizations in this function
     float preciseCellHeight = 19.2f;
     int yValueWithoutOffset =
@@ -392,6 +396,5 @@ int MainComponent::getYCoordinateForNote(int noteNumber, int startNote,
 }
 
 void MainComponent::resized() {
-    piano_roll.setBounds(0, 0, 64, WINDOW_HEIGHT);
-    nc.setBounds(50, 50, 200, 200);
+    piano_roll.setBounds(0, 0, this->midiKeyboardWidth, WINDOW_HEIGHT);
 }

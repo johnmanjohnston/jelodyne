@@ -3,6 +3,7 @@
 #include "clip.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_audio_utils/juce_audio_utils.h"
+#include "juce_core/juce_core.h"
 #include "juce_graphics/juce_graphics.h"
 #include "note.h"
 #include "piano.h"
@@ -10,12 +11,15 @@
 #include "noteComponent.h"
 
 #include <JuceHeader.h>
+#include <memory>
 
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
+
+// TODO: change privacy of class members
 class MainComponent : public juce::AudioAppComponent,
                       public juce::MidiInputCallback {
   public:
@@ -36,8 +40,7 @@ class MainComponent : public juce::AudioAppComponent,
     int WINDOW_HEIGHT = 720;
     int WINDOW_WIDTH = 1280;
 
-    jelodyne::NoteComponent nc;
-
+    int midiKeyboardWidth = 64;
     jelodyne::piano::piano_roll piano_roll;
     juce::MidiKeyboardState kb_state;
     juce::MidiBuffer midi_buf;
@@ -75,10 +78,13 @@ class MainComponent : public juce::AudioAppComponent,
     juce::AudioBuffer<float> file_buffer;
     void load_file(juce::String path);
     bool analyze_file = false;
+    bool addedNoteComponents = false;
 
     std::vector<jelodyne::note> file_notes;
+    // juce::OwnedArray<jelodyne::NoteComponent> noteComponents;
+    std::vector<std::unique_ptr<jelodyne::NoteComponent>> noteComponents;
 
-    int getYCoordinateForNote(int noteNumber, int startNote, int endNote);
+    int getYCoordinateForNote(int noteNumber, int endNote);
     //==============================================================================
     // Your private member variables go here...
 

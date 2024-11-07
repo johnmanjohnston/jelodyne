@@ -1,13 +1,18 @@
 #include "noteComponent.h"
 
-jelodyne::NoteComponent::NoteComponent() {}
+jelodyne::NoteComponent::NoteComponent() : juce::Component() {}
 
 void jelodyne::NoteComponent::paint(juce::Graphics &g) {
-    DBG("paint called on NoteComponent instance");
     g.setColour(juce::Colours::red);
-    g.fillRect(getX(), getY(), getWidth(), getHeight());
+    g.fillRect(getLocalBounds()); // i am embarrased at how much time it took me
+                                  // to find out i should use getLocalBounds()
+                                  // instead of getBounds()
 }
 
 void jelodyne::NoteComponent::mouseEnter(const juce::MouseEvent &event) {
     DBG("notecomponent mouseenter event detected");
+}
+
+void jelodyne::NoteComponent::mouseExit(const juce::MouseEvent &event) {
+    DBG("mouse exit");
 }
