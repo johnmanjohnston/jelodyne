@@ -5,9 +5,9 @@
 // when user is correcting their pitch, it's useful to have a piano as well to
 // use as reference--this class is that piano
 namespace jelodyne::piano {
-class piano_roll : public juce::MidiKeyboardComponent {
+class pianoRoll : public juce::MidiKeyboardComponent {
   public:
-    piano_roll(MidiKeyboardState &state, Orientation orientation);
+    pianoRoll(MidiKeyboardState &state, Orientation orientation);
 
   protected:
     virtual void drawWhiteNote(int midiNoteNumber, Graphics &g,
@@ -19,7 +19,7 @@ class piano_roll : public juce::MidiKeyboardComponent {
                                Colour noteFillColour) override;
 };
 
-class piano_synth : public juce::Synthesiser {
+class pianoSynth : public juce::Synthesiser {
   public:
     void init(juce::String sample_path);
 

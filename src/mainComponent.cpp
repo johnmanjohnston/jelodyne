@@ -8,9 +8,9 @@
 
 //==============================================================================
 MainComponent::MainComponent()
-    : piano_roll(kb_state,
-                 juce::KeyboardComponentBase::verticalKeyboardFacingRight),
-      start_time(juce::Time::getMillisecondCounterHiRes() * 0.001),
+    : pianoRoll(kbState,
+                juce::KeyboardComponentBase::verticalKeyboardFacingRight),
+      startTime(juce::Time::getMillisecondCounterHiRes() * 0.001),
       forwardFFT(fftOrder) {
     setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
@@ -25,9 +25,9 @@ MainComponent::MainComponent()
         setAudioChannels(2, 2);
     }
 
-    addAndMakeVisible(piano_roll);
-    piano_roll.setKeyWidth(32.7f);
-    piano_roll.setAvailableRange(12 * (2 + 2), 12 * (5 + 2)); // C2 to C5
+    addAndMakeVisible(pianoRoll);
+    pianoRoll.setKeyWidth(32.7f);
+    pianoRoll.setAvailableRange(12 * (2 + 2), 12 * (5 + 2)); // C2 to C5
 
     // addAndMakeVisible(nc);
 
@@ -46,7 +46,7 @@ MainComponent::MainComponent()
 
     DBG("activating device " << midiName);
 
-    load_file("/home/johnston/Downloads/jelodyne-testing.wav");
+    loadFile("/home/johnston/Downloads/jelodyne-testing.wav");
 }
 
 MainComponent::~MainComponent() {
@@ -56,24 +56,24 @@ MainComponent::~MainComponent() {
 
 void MainComponent::handleIncomingMidiMessage(
     juce::MidiInput *source, const juce::MidiMessage &message) {
-    kb_state.processNextMidiEvent(message);
+    kbState.processNextMidiEvent(message);
 
-    midi_buf.addEvent(message, 0);
+    midiBuffer.addEvent(message, 0);
 
     const juce::MessageManagerLock
         mm_lock; // we're calling a function running on the GUI thread, so we
                  // need MessageManagerLock for thread safety
-    piano_roll.repaint();
+    pianoRoll.repaint();
 }
 
 //==============================================================================
 void MainComponent::prepareToPlay(int samplesPerBlockExpected,
                                   double sampleRate) {
-    this->sample_rate = sampleRate;
+    this->mSampleRate = sampleRate;
 
     synth.setCurrentPlaybackSampleRate(sampleRate);
     synth.init("/home/johnston/Downloads/jelodyne-testing.wav");
-    kb_state.reset();
+    kbState.reset();
 
     clip.path = "/home/johnston/Downloads/acapella.wav";
 }
@@ -88,13 +88,13 @@ void MainComponent::getNextAudioBlock(
     // the buffer (to prevent the output of random noise)
     bufferToFill.clearActiveBufferRegion();
 
-    kb_state.processNextMidiBuffer(midi_buf, bufferToFill.startSample,
-                                   bufferToFill.numSamples, true);
+    kbState.processNextMidiBuffer(midiBuffer, bufferToFill.startSample,
+                                  bufferToFill.numSamples, true);
 
-    synth.renderNextBlock(*bufferToFill.buffer, midi_buf,
+    synth.renderNextBlock(*bufferToFill.buffer, midiBuffer,
                           bufferToFill.startSample, bufferToFill.numSamples);
 
-    midi_buf.clear();
+    midiBuffer.clear();
 
     if (bufferToFill.buffer->getNumChannels() > 0) {
         auto *channelData =
@@ -127,7 +127,7 @@ void MainComponent::getNextAudioBlock(
                     }
 
                     float frequency =
-                        (float)maxIndex * this->sample_rate / fftSize;
+                        (float)maxIndex * this->mSampleRate / fftSize;
 
                     // TODO: optimize the insertion of notes into the notes
                     // vector--get rid of the conversion from frequency to
@@ -137,12 +137,12 @@ void MainComponent::getNextAudioBlock(
                     // only add to notes if notes is between C2 and C5
                     if (frequency > 65.f && frequency < 520) {
                         jelodyne::note note;
-                        note.note_number = jelodyne::note_name_to_number(
+                        note.noteNumber = jelodyne::noteNameToNumber(
                             frequencyToNote(frequency), 3);
 
-                        if (note.note_number != -1) {
-                            note.start_sample = i;
-                            note.original_frequency = frequency;
+                        if (note.noteNumber != -1) {
+                            note.startSample = i;
+                            note.originalFrequency = frequency;
 
                             this->file_notes.push_back(note);
                         }
@@ -158,15 +158,15 @@ void MainComponent::getNextAudioBlock(
              i != file_notes.size(); i++) {
 
             if (i + 1 != file_notes.size()) {
-                file_notes[i].end_sample = file_notes[i + 1].start_sample;
+                file_notes[i].endSample = file_notes[i + 1].startSample;
             }
         }
 
         // TODO: cleanup
-        jelodyne::consolidate_duplicate_notes(this->file_notes);
-        jelodyne::consolidate_duplicate_notes(this->file_notes);
-        jelodyne::consolidate_duplicate_notes(this->file_notes);
-        jelodyne::consolidate_duplicate_notes(this->file_notes);
+        jelodyne::consolidateDuplicateNotes(this->file_notes);
+        jelodyne::consolidateDuplicateNotes(this->file_notes);
+        jelodyne::consolidateDuplicateNotes(this->file_notes);
+        jelodyne::consolidateDuplicateNotes(this->file_notes);
 
         /*
         for (auto n : file_notes) {
@@ -176,22 +176,22 @@ void MainComponent::getNextAudioBlock(
                         << n.end_sample << " and has an original frequency of "
                         << n.original_frequency);
         }*/
-        jelodyne::remove_pitch_artifacts(this->file_notes, this->fftSize);
+        jelodyne::removePitchArtifacts(this->file_notes, this->fftSize);
 
-        jelodyne::consolidate_duplicate_notes(this->file_notes);
-        jelodyne::consolidate_duplicate_notes(this->file_notes);
-        jelodyne::consolidate_duplicate_notes(this->file_notes);
+        jelodyne::consolidateDuplicateNotes(this->file_notes);
+        jelodyne::consolidateDuplicateNotes(this->file_notes);
+        jelodyne::consolidateDuplicateNotes(this->file_notes);
 
         for (std::vector<jelodyne::note>::size_type i = 0;
              i != file_notes.size(); i++) {
 
             DBG("note is "
-                << juce::MidiMessage::getMidiNoteName(file_notes[i].note_number,
+                << juce::MidiMessage::getMidiNoteName(file_notes[i].noteNumber,
                                                       true, true, 3)
                 << " and number lasts "
-                << (file_notes[i].end_sample - file_notes[i].start_sample)
+                << (file_notes[i].endSample - file_notes[i].startSample)
                 << " which is "
-                << (file_notes[i].end_sample - file_notes[i].start_sample) /
+                << (file_notes[i].endSample - file_notes[i].startSample) /
                        41000.0
                 << " seconds" << " samples");
         }
@@ -216,7 +216,7 @@ void MainComponent::pushNextSampleIntoFifo(float sample) {
     fifo[(size_t)fifoIndex++] = sample; // [9]
 }
 
-void MainComponent::load_file(juce::String path) {
+void MainComponent::loadFile(juce::String path) {
     DBG("load_file() called");
 
     if (afm.findFormatForFileExtension("wav") == nullptr)
@@ -327,8 +327,8 @@ void MainComponent::releaseResources() {
 void MainComponent::paint(juce::Graphics &g) {
     g.fillAll(juce::Colours::black);
 
-    const int startNote = piano_roll.getRangeStart();
-    const int endNote = piano_roll.getRangeEnd();
+    const int startNote = pianoRoll.getRangeStart();
+    const int endNote = pianoRoll.getRangeEnd();
     int cellHeight = 19;
     int cellWidth = 22;
     g.setFont(16.f);
@@ -366,9 +366,8 @@ void MainComponent::paint(juce::Graphics &g) {
         for (auto n : file_notes) {
             DBG("creating NoteComponent instances...");
             auto rect = juce::Rectangle<int>(
-                midiKeyboardWidth,
-                getYCoordinateForNote(n.note_number, endNote), cellWidth,
-                cellHeight);
+                midiKeyboardWidth, getYCoordinateForNote(n.noteNumber, endNote),
+                cellWidth, cellHeight);
 
             auto x = std::make_unique<jelodyne::NoteComponent>();
             x->noteData = n;
@@ -396,5 +395,5 @@ int MainComponent::getYCoordinateForNote(int noteNumber, int endNote) {
 }
 
 void MainComponent::resized() {
-    piano_roll.setBounds(0, 0, this->midiKeyboardWidth, WINDOW_HEIGHT);
+    pianoRoll.setBounds(0, 0, this->midiKeyboardWidth, WINDOW_HEIGHT);
 }

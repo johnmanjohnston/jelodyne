@@ -1,7 +1,7 @@
 #include "utility.h"
 
-int jelodyne::note_name_to_number(juce::String keyName,
-                                  const int octaveForMiddleC) {
+int jelodyne::noteNameToNumber(juce::String keyName,
+                               const int octaveForMiddleC) {
     if (keyName == "invalid note")
         return -1;
 

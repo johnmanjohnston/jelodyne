@@ -41,14 +41,14 @@ class MainComponent : public juce::AudioAppComponent,
     int WINDOW_WIDTH = 1280;
 
     int midiKeyboardWidth = 64;
-    jelodyne::piano::piano_roll piano_roll;
-    juce::MidiKeyboardState kb_state;
-    juce::MidiBuffer midi_buf;
+    jelodyne::piano::pianoRoll pianoRoll;
+    juce::MidiKeyboardState kbState;
+    juce::MidiBuffer midiBuffer;
 
-    jelodyne::piano::piano_synth synth;
+    jelodyne::piano::pianoSynth synth;
 
     juce::AudioDeviceManager device_manager;
-    double start_time;
+    double startTime;
 
     juce::Random random;
 
@@ -72,11 +72,11 @@ class MainComponent : public juce::AudioAppComponent,
 
     juce::String frequencyToNote(float frequency);
 
-    double sample_rate;
+    double mSampleRate;
 
     juce::AudioFormatManager afm;
     juce::AudioBuffer<float> file_buffer;
-    void load_file(juce::String path);
+    void loadFile(juce::String path);
     bool analyze_file = false;
     bool addedNoteComponents = false;
 

@@ -4,12 +4,12 @@
 namespace jelodyne {
 class note {
   public:
-    int note_number = -1;
-    int start_sample = -1;
-    int end_sample = -1;
-    int original_frequency = -1;
+    int noteNumber = -1;
+    int startSample = -1;
+    int endSample = -1;
+    int originalFrequency = -1;
 };
 
-void consolidate_duplicate_notes(std::vector<note> &notes);
-void remove_pitch_artifacts(std::vector<note> &notes, int fft_size);
+void consolidateDuplicateNotes(std::vector<note> &notes);
+void removePitchArtifacts(std::vector<note> &notes, int fft_size);
 } // namespace jelodyne

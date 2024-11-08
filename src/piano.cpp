@@ -3,15 +3,15 @@
 #include "juce_graphics/juce_graphics.h"
 using namespace juce;
 
-jelodyne::piano::piano_roll::piano_roll(MidiKeyboardState &state,
-                                        Orientation orientation)
+jelodyne::piano::pianoRoll::pianoRoll(MidiKeyboardState &state,
+                                      Orientation orientation)
     : MidiKeyboardComponent(state, orientation) {}
 
-void jelodyne::piano::piano_roll::drawWhiteNote(int midiNoteNumber, Graphics &g,
-                                                Rectangle<float> area,
-                                                bool isDown, bool isOver,
-                                                Colour lineColour,
-                                                Colour textColour) {
+void jelodyne::piano::pianoRoll::drawWhiteNote(int midiNoteNumber, Graphics &g,
+                                               Rectangle<float> area,
+                                               bool isDown, bool isOver,
+                                               Colour lineColour,
+                                               Colour textColour) {
     auto c = Colours::transparentWhite;
 
     if (isDown)
@@ -83,10 +83,10 @@ void jelodyne::piano::piano_roll::drawWhiteNote(int midiNoteNumber, Graphics &g,
     }
 }
 
-void jelodyne::piano::piano_roll::drawBlackNote(int midiNoteNumber, Graphics &g,
-                                                Rectangle<float> area,
-                                                bool isDown, bool isOver,
-                                                Colour noteFillColour) {
+void jelodyne::piano::pianoRoll::drawBlackNote(int midiNoteNumber, Graphics &g,
+                                               Rectangle<float> area,
+                                               bool isDown, bool isOver,
+                                               Colour noteFillColour) {
     auto c = Colour(70, 70, 70);
 
     if (isDown)
@@ -109,7 +109,7 @@ void jelodyne::piano::piano_roll::drawBlackNote(int midiNoteNumber, Graphics &g,
     }
 }
 
-void jelodyne::piano::piano_synth::init(juce::String sample_path) {
+void jelodyne::piano::pianoSynth::init(juce::String sample_path) {
     this->piano_sample_path = sample_path;
 
     for (int i = 0; i < 5; i++)
