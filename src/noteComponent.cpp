@@ -1,6 +1,7 @@
 #include "noteComponent.h"
 
-jelodyne::NoteComponent::NoteComponent() : juce::Component() {}
+jelodyne::NoteComponent::NoteComponent()
+    : juce::Component() /*, juce::ChangeBroadcaster()*/ {}
 
 void jelodyne::NoteComponent::paint(juce::Graphics &g) {
     g.setColour(juce::Colours::red);
@@ -10,9 +11,12 @@ void jelodyne::NoteComponent::paint(juce::Graphics &g) {
 }
 
 void jelodyne::NoteComponent::mouseEnter(const juce::MouseEvent &event) {
-    DBG("notecomponent mouseenter event detected");
+    // DBG("notecomponent mouseenter event detected");
+    // sendChangeMessage();
+    broadcastMessage((void *)(uintptr_t)this->noteData.noteNumber,
+                     (void *)(uintptr_t)this->noteData.startSample);
 }
 
 void jelodyne::NoteComponent::mouseExit(const juce::MouseEvent &event) {
-    DBG("mouse exit");
+    // DBG("mouse exit");
 }

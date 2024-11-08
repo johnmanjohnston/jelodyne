@@ -1,9 +1,11 @@
 #pragma once
 
 #include "clip.h"
+#include "jlistener/jlistenerbroadcaster.h"
 #include "juce_audio_basics/juce_audio_basics.h"
 #include "juce_audio_utils/juce_audio_utils.h"
 #include "juce_core/juce_core.h"
+#include "juce_events/juce_events.h"
 #include "juce_graphics/juce_graphics.h"
 #include "note.h"
 #include "piano.h"
@@ -21,7 +23,8 @@
 
 // TODO: change privacy of class members
 class MainComponent : public juce::AudioAppComponent,
-                      public juce::MidiInputCallback {
+                      public juce::MidiInputCallback,
+                      public JListener {
   public:
     //==============================================================================
     MainComponent();
@@ -36,6 +39,10 @@ class MainComponent : public juce::AudioAppComponent,
     //==============================================================================
     void paint(juce::Graphics &g) override;
     void resized() override;
+
+    // void changeListenerCallback(juce::ChangeBroadcaster *source) override;
+    void JListenerCallback(void *data, void *metadata,
+                           JBroadcaster *source) override;
 
     int WINDOW_HEIGHT = 720;
     int WINDOW_WIDTH = 1280;
@@ -62,13 +69,12 @@ class MainComponent : public juce::AudioAppComponent,
     static constexpr auto fftSize = 1 << fftOrder;
     juce::dsp::FFT forwardFFT;
 
-    std::array<float, fftSize> fifo = {0};        // [4]
-    std::array<float, fftSize * 2> fftData = {0}; // [5]
-    int fifoIndex = 0;                            // [6]
-    bool nextFFTBlockReady = false;               // [7]
+    std::array<float, fftSize> fifo = {0};
+    std::array<float, fftSize * 2> fftData = {0};
+    int fifoIndex = 0;
+    bool nextFFTBlockReady = false;
 
     void pushNextSampleIntoFifo(float sample);
-    // void drawNextLineOfSpectrogram();
 
     juce::String frequencyToNote(float frequency);
 
@@ -81,7 +87,6 @@ class MainComponent : public juce::AudioAppComponent,
     bool addedNoteComponents = false;
 
     std::vector<jelodyne::note> file_notes;
-    // juce::OwnedArray<jelodyne::NoteComponent> noteComponents;
     std::vector<std::unique_ptr<jelodyne::NoteComponent>> noteComponents;
 
     int getYCoordinateForNote(int noteNumber, int endNote);

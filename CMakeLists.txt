@@ -36,7 +36,8 @@ target_sources(jelodyne PRIVATE
     src/piano.cpp
     src/note.cpp
     src/utility.cpp
-    src/noteComponent.cpp)
+    src/noteComponent.cpp
+    src/jlistener/jlistenerbroadcaster.cpp)
 
 
 target_compile_definitions(jelodyne PRIVATE

@@ -8,7 +8,8 @@
 
 //==============================================================================
 MainComponent::MainComponent()
-    : pianoRoll(kbState,
+    : // juce::ChangeListener(),
+      pianoRoll(kbState,
                 juce::KeyboardComponentBase::verticalKeyboardFacingRight),
       startTime(juce::Time::getMillisecondCounterHiRes() * 0.001),
       forwardFFT(fftOrder) {
@@ -364,18 +365,18 @@ void MainComponent::paint(juce::Graphics &g) {
         this->noteComponents.resize(file_notes.size());
 
         for (auto n : file_notes) {
-            DBG("creating NoteComponent instances...");
+            // DBG("creating NoteComponent instances...");
             auto rect = juce::Rectangle<int>(
                 midiKeyboardWidth, getYCoordinateForNote(n.noteNumber, endNote),
                 cellWidth, cellHeight);
 
             auto x = std::make_unique<jelodyne::NoteComponent>();
+            // x->addChangeListener(this);
             x->noteData = n;
             x->setBounds(rect);
             addAndMakeVisible(*x);
+            x->setListener(this);
 
-            DBG("a NoteComponent instance's position is "
-                << x->getBounds().getX());
             this->noteComponents.push_back(std::move(x));
         }
 
@@ -396,4 +397,14 @@ int MainComponent::getYCoordinateForNote(int noteNumber, int endNote) {
 
 void MainComponent::resized() {
     pianoRoll.setBounds(0, 0, this->midiKeyboardWidth, WINDOW_HEIGHT);
+}
+
+/*void MainComponent::changeListenerCallback(juce::ChangeBroadcaster *source) {
+    DBG("change listerner callback called in mainComponent");
+}*/
+
+void MainComponent::JListenerCallback(void *data, void *metadata,
+                                      JBroadcaster *source) {
+    DBG("Jlistener callback called with data: "
+        << *((int *)(&data)) << " and metadata " << *((int *)(&metadata)));
 }

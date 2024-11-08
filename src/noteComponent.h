@@ -1,11 +1,15 @@
 #pragma once
+#include "jlistener/jlistenerbroadcaster.h"
 #include "note.h"
 #include <JuceHeader.h>
 
 namespace jelodyne {
-class NoteComponent : public juce::Component {
+class NoteComponent
+    : public juce::Component /*, public juce::ChangeBroadcaster*/,
+      public JBroadcaster {
   public:
     NoteComponent();
+
     juce::Rectangle<int> componentPosition;
     void paint(juce::Graphics &g) override;
     void mouseEnter(const juce::MouseEvent &event) override;
