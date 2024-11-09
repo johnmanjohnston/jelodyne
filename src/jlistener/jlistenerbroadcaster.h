@@ -4,6 +4,8 @@ class JListener;
 
 class JBroadcaster {
   public:
+    ~JBroadcaster();
+
     void setListener(JListener *listener);
     void broadcastMessage(void *data, void *metadata);
 
