@@ -1,4 +1,5 @@
 #include "mainComponent.h"
+#include "common.h"
 #include "note.h"
 #include "noteComponent.h"
 #include "piano.h"
@@ -77,6 +78,11 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected,
     kbState.reset();
 
     clip.path = "/home/johnston/Downloads/acapella.wav";
+}
+
+bool MainComponent::shouldPlayLoopingNote() {
+    return this->currentNoteStartSample != -1 &&
+           this->currentNoteEndSample != -1;
 }
 
 void MainComponent::getNextAudioBlock(
@@ -195,6 +201,41 @@ void MainComponent::getNextAudioBlock(
                 << (file_notes[i].endSample - file_notes[i].startSample) /
                        41000.0
                 << " seconds" << " samples");
+        }
+    }
+
+    if (shouldPlayLoopingNote() == true) {
+        // loop the current note so that the user knows what pitch they're
+        // singing
+
+        auto numInputChannels = currentNoteBuffer.getNumChannels();
+        auto numOutputChannels = bufferToFill.buffer->getNumChannels();
+
+        auto outputSamplesRemaining = bufferToFill.numSamples; // [8]
+        auto outputSamplesOffset = bufferToFill.startSample;
+
+        while (outputSamplesRemaining > 0) {
+            auto bufferSamplesRemaining =
+                currentNoteBuffer.getNumSamples() - position; // [10]
+            auto samplesThisTime = juce::jmin(outputSamplesRemaining,
+                                              bufferSamplesRemaining); // [11]
+
+            for (auto channel = 0; channel < numOutputChannels; ++channel) {
+                bufferToFill.buffer->copyFrom(channel,             // [12]
+                                              outputSamplesOffset, //  [12.1]
+                                              currentNoteBuffer,   //  [12.2]
+                                              channel %
+                                                  numInputChannels, //  [12.3]
+                                              position,             //  [12.4]
+                                              samplesThisTime);     //  [12.5]
+            }
+
+            outputSamplesRemaining -= samplesThisTime; // [13]
+            outputSamplesOffset += samplesThisTime;    // [14]
+            position += samplesThisTime;               // [15]
+
+            if (position == currentNoteBuffer.getNumSamples())
+                position = 0; // [16]
         }
     }
 }
@@ -405,6 +446,50 @@ void MainComponent::resized() {
 
 void MainComponent::JListenerCallback(void *data, void *metadata,
                                       JBroadcaster *source) {
-    DBG("Jlistener callback called with data: "
-        << *((int *)(&data)) << " and metadata " << *((int *)(&metadata)));
+    // TODO: find a way to avoid repetition
+    int typecode = *((int *)(&metadata));
+
+    if (typecode == TYPECODE_NOTE_START_SAMPLE) {
+        int x = *((int *)(&data));
+        this->currentNoteStartSample = x;
+    }
+
+    if (typecode == TYPECODE_NOTE_END_SAMPLE) {
+        int x = *((int *)(&data));
+        this->currentNoteEndSample = x;
+        position = 0;
+
+        // copy only the data from current note from file_buffer into
+        // currentNoteBuffer
+        int numChannels = file_buffer.getNumChannels();
+        int totalSamples = file_buffer.getNumSamples();
+        int numSamples = currentNoteEndSample - currentNoteStartSample;
+        int startSample = currentNoteStartSample;
+
+        // don't copy buffer if sample numbers are invalid
+        if (startSample < 0 || numSamples <= 0 ||
+            startSample + numSamples > totalSamples) {
+            return;
+        }
+
+        this->currentNoteBuffer.setSize(numChannels, numSamples);
+
+        for (int channel = 0; channel < numChannels; ++channel) {
+            this->currentNoteBuffer.copyFrom(channel, 0, file_buffer, channel,
+                                             startSample, numSamples);
+        }
+    }
+
+    if (typecode == TYPECODE_CLEAR_NOTE_SAMPLES) {
+        this->currentNoteStartSample = -1;
+        this->currentNoteEndSample = -1;
+    }
+
+    if (currentNoteStartSample == -1 || currentNoteEndSample == -1)
+        return;
+    /*
+        DBG("start sampmple is " << this->currentNoteStartSample
+                                 << " and end sample is "
+                                 << this->currentNoteEndSample);
+    */
 }

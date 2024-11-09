@@ -82,16 +82,20 @@ class MainComponent : public juce::AudioAppComponent,
 
     juce::AudioFormatManager afm;
     juce::AudioBuffer<float> file_buffer;
+    juce::AudioBuffer<float> currentNoteBuffer;
     void loadFile(juce::String path);
     bool analyze_file = false;
     bool addedNoteComponents = false;
 
     std::vector<jelodyne::note> file_notes;
     std::vector<std::unique_ptr<jelodyne::NoteComponent>> noteComponents;
+    int currentNoteStartSample = -1;
+    int currentNoteEndSample = -1;
+    bool shouldPlayLoopingNote();
+    int position = 0;
 
     int getYCoordinateForNote(int noteNumber, int endNote);
     //==============================================================================
-    // Your private member variables go here...
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };
