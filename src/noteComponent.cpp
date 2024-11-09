@@ -16,16 +16,11 @@ void jelodyne::NoteComponent::paint(juce::Graphics &g) {
 }
 
 void jelodyne::NoteComponent::mouseDown(const juce::MouseEvent &event) {
-    // send start sample number and end sample number
-    broadcastMessage((void *)(uintptr_t)this->noteData.startSample,
-                     (void *)(uintptr_t)TYPECODE_NOTE_START_SAMPLE);
-
-    broadcastMessage((void *)(uintptr_t)this->noteData.endSample,
-                     (void *)(uintptr_t)TYPECODE_NOTE_END_SAMPLE);
+    broadcastMessage((void *)&noteData, (void *)(uintptr_t)TYPECODE_NOTE);
 }
 
 void jelodyne::NoteComponent::mouseUp(const juce::MouseEvent &event) {
-    broadcastMessage(NULL, (void *)(uintptr_t)TYPECODE_CLEAR_NOTE_SAMPLES);
+    broadcastMessage(NULL, (void *)(uintptr_t)TYPECODE_CLEAR_NOTE);
 }
 
 // obviously, moving notes by mouse like this isn't user friendly at all--this

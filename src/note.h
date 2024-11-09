@@ -8,6 +8,8 @@ class note {
     int startSample = -1;
     int endSample = -1;
     int originalFrequency = -1;
+
+    juce::AudioBuffer<float> buffer;
 };
 
 void consolidateDuplicateNotes(std::vector<note> &notes);

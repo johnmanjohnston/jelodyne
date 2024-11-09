@@ -77,17 +77,20 @@ class MainComponent : public juce::AudioAppComponent,
 
     juce::AudioFormatManager afm;
     juce::AudioBuffer<float> fileBuffer;
-    juce::AudioBuffer<float> currentNoteBuffer;
+    // juce::AudioBuffer<float> currentNoteBuffer;
     void loadFile(juce::String path);
     bool analyzeFile = false;
     bool addedNoteComponents = false;
 
     std::vector<jelodyne::note> fileNotes;
     std::vector<std::unique_ptr<jelodyne::NoteComponent>> noteComponents;
-    int currentNoteStartSample = -1;
-    int currentNoteEndSample = -1;
     bool shouldPlayLoopingNote();
     int position = 0;
+    jelodyne::note *currentLoopingNote = nullptr;
+
+    juce::AudioBuffer<float> getShifted(juce::AudioBuffer<float> orginal,
+                                        float orginalFrequency,
+                                        float shiftAmount);
 
     // int getYCoordinateForNote(int noteNumber, int endNote);
     //==============================================================================

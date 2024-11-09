@@ -82,8 +82,13 @@ void MainComponent::prepareToPlay(int samplesPerBlockExpected,
 }
 
 bool MainComponent::shouldPlayLoopingNote() {
-    return this->currentNoteStartSample != -1 &&
-           this->currentNoteEndSample != -1;
+    if (this->currentLoopingNote == nullptr)
+        return false;
+
+    if (this->currentLoopingNote->buffer.getNumSamples() == 0)
+        return false;
+
+    return true;
 }
 
 void MainComponent::getNextAudioBlock(
@@ -185,6 +190,30 @@ void MainComponent::getNextAudioBlock(
         jelodyne::consolidateDuplicateNotes(this->fileNotes);
         jelodyne::consolidateDuplicateNotes(this->fileNotes);
 
+        // now that we've gotten rid of duplicates/artifacts, copy the section
+        // of the buffer which coressponds to the note
+        int numChannels = fileBuffer.getNumChannels();
+        int totalSamples = fileBuffer.getNumSamples();
+        for (auto &note : fileNotes) {
+            // copy only the data from current note from file_buffer into
+            // note.buffer
+            int numSamples = note.endSample - note.startSample;
+            int startSample = note.startSample;
+
+            // don't copy buffer if sample numbers are invalid
+            if (startSample < 0 || numSamples <= 0 ||
+                startSample + numSamples > totalSamples) {
+                return;
+            }
+
+            note.buffer.setSize(numChannels, numSamples);
+
+            for (int channel = 0; channel < numChannels; ++channel) {
+                note.buffer.copyFrom(channel, 0, fileBuffer, channel,
+                                     startSample, numSamples);
+            }
+        }
+
         for (std::vector<jelodyne::note>::size_type i = 0;
              i != fileNotes.size(); i++) {
 
@@ -200,36 +229,36 @@ void MainComponent::getNextAudioBlock(
     }
 
     if (shouldPlayLoopingNote() == true) {
-        // loop the current note so that the user knows what pitch they're
-        // singing
+        // loop the current note so that the user knows what pitch
+        // they're singing
 
-        auto numInputChannels = currentNoteBuffer.getNumChannels();
-        auto numOutputChannels = bufferToFill.buffer->getNumChannels();
+        auto numInputChannels = currentLoopingNote->buffer.getNumChannels();
+        auto numOutputChannels = currentLoopingNote->buffer.getNumChannels();
 
         auto outputSamplesRemaining = bufferToFill.numSamples; // [8]
         auto outputSamplesOffset = bufferToFill.startSample;
 
         while (outputSamplesRemaining > 0) {
             auto bufferSamplesRemaining =
-                currentNoteBuffer.getNumSamples() - position; // [10]
+                currentLoopingNote->buffer.getNumSamples() - position; // [10]
             auto samplesThisTime = juce::jmin(outputSamplesRemaining,
                                               bufferSamplesRemaining); // [11]
 
             for (auto channel = 0; channel < numOutputChannels; ++channel) {
-                bufferToFill.buffer->copyFrom(channel,             // [12]
-                                              outputSamplesOffset, //  [12.1]
-                                              currentNoteBuffer,   //  [12.2]
-                                              channel %
-                                                  numInputChannels, //  [12.3]
-                                              position,             //  [12.4]
-                                              samplesThisTime);     //  [12.5]
+                bufferToFill.buffer->copyFrom(
+                    channel,                    // [12]
+                    outputSamplesOffset,        //  [12.1]
+                    currentLoopingNote->buffer, //  [12.2]
+                    channel % numInputChannels, //  [12.3]
+                    position,                   //  [12.4]
+                    samplesThisTime);           //  [12.5]
             }
 
             outputSamplesRemaining -= samplesThisTime; // [13]
             outputSamplesOffset += samplesThisTime;    // [14]
             position += samplesThisTime;               // [15]
 
-            if (position == currentNoteBuffer.getNumSamples())
+            if (position == currentLoopingNote->buffer.getNumSamples())
                 position = 0; // [16]
         }
     }
@@ -275,11 +304,12 @@ void MainComponent::loadFile(juce::String path) {
 }
 
 juce::String MainComponent::frequencyToNote(float input) {
-    // yoink implementation used in https://www.phys.unsw.edu.au/music/note/
-    // (see page source to find orginal implementation)
+    // yoink implementation used in
+    // https://www.phys.unsw.edu.au/music/note/ (see page source to find
+    // orginal implementation)
 
-    // TODO: optmize this function--notes[] has many elements which aren't even
-    // humanly possible to sing, so get rid of them
+    // TODO: optmize this function--notes[] has many elements which
+    // aren't even humanly possible to sing, so get rid of them
     double a4 = 440.0;
     int a4_index = 57;
 
@@ -353,11 +383,22 @@ juce::String MainComponent::frequencyToNote(float input) {
         return notes[retval_index];
 }
 
-void MainComponent::releaseResources() {
-    // This will be called when the audio device stops, or when it is being
-    // restarted due to a setting change.
+juce::AudioBuffer<float>
+MainComponent::getShifted(juce::AudioBuffer<float> orginal,
+                          float orginalFrequency, float shiftAmount) {
+    juce::AudioBuffer<float> retval = orginal;
 
-    // For more details, see the help for AudioProcessor::releaseResources()
+    // TODO: this function
+
+    return retval;
+}
+
+void MainComponent::releaseResources() {
+    // This will be called when the audio device stops, or when it is
+    // being restarted due to a setting change.
+
+    // For more details, see the help for
+    // AudioProcessor::releaseResources()
 }
 
 //==============================================================================
@@ -370,8 +411,8 @@ void MainComponent::paint(juce::Graphics &g) {
     int cellWidth = 22;
     g.setFont(16.f);
 
-    // TODO: move the creation of MIDI note cells (and drawing notes on those
-    // cells) into its own seperate component
+    // TODO: move the creation of MIDI note cells (and drawing notes on
+    // those cells) into its own seperate component
     for (int i = 0; i <= endNote - startNote; ++i) {
         // g.setColour(juce::Colours::white);
 
@@ -431,44 +472,15 @@ void MainComponent::JListenerCallback(void *data, void *metadata,
     // TODO: find a way to avoid repetition
     int typecode = *((int *)(&metadata));
 
-    if (typecode == TYPECODE_NOTE_START_SAMPLE) {
-        int x = *((int *)(&data));
-        this->currentNoteStartSample = x;
+    if (typecode == TYPECODE_NOTE) {
+        currentLoopingNote = (jelodyne::note *)data;
     }
 
-    if (typecode == TYPECODE_NOTE_END_SAMPLE) {
-        int x = *((int *)(&data));
-        this->currentNoteEndSample = x;
+    if (typecode == TYPECODE_CLEAR_NOTE) {
         position = 0;
-
-        // copy only the data from current note from file_buffer into
-        // currentNoteBuffer
-        int numChannels = fileBuffer.getNumChannels();
-        int totalSamples = fileBuffer.getNumSamples();
-        int numSamples = currentNoteEndSample - currentNoteStartSample;
-        int startSample = currentNoteStartSample;
-
-        // don't copy buffer if sample numbers are invalid
-        if (startSample < 0 || numSamples <= 0 ||
-            startSample + numSamples > totalSamples) {
-            return;
-        }
-
-        this->currentNoteBuffer.setSize(numChannels, numSamples);
-
-        for (int channel = 0; channel < numChannels; ++channel) {
-            this->currentNoteBuffer.copyFrom(channel, 0, fileBuffer, channel,
-                                             startSample, numSamples);
-        }
+        currentLoopingNote = nullptr;
     }
 
-    if (typecode == TYPECODE_CLEAR_NOTE_SAMPLES) {
-        this->currentNoteStartSample = -1;
-        this->currentNoteEndSample = -1;
-    }
-
-    if (currentNoteStartSample == -1 || currentNoteEndSample == -1)
-        return;
     /*
         DBG("start sampmple is " << this->currentNoteStartSample
                                  << " and end sample is "
