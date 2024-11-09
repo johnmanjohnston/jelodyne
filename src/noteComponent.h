@@ -12,8 +12,10 @@ class NoteComponent
 
     juce::Rectangle<int> componentPosition;
     void paint(juce::Graphics &g) override;
-    void mouseEnter(const juce::MouseEvent &event) override;
-    void mouseExit(const juce::MouseEvent &event) override;
+    void mouseDown(const juce::MouseEvent &event) override;
+    void mouseUp(const juce::MouseEvent &event) override;
+    void mouseWheelMove(const juce::MouseEvent &event,
+                        const juce::MouseWheelDetails &wheel) override;
 
     jelodyne::note noteData;
 

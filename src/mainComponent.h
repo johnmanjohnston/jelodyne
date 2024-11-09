@@ -2,11 +2,6 @@
 
 #include "clip.h"
 #include "jlistener/jlistenerbroadcaster.h"
-#include "juce_audio_basics/juce_audio_basics.h"
-#include "juce_audio_utils/juce_audio_utils.h"
-#include "juce_core/juce_core.h"
-#include "juce_events/juce_events.h"
-#include "juce_graphics/juce_graphics.h"
 #include "note.h"
 #include "piano.h"
 
@@ -54,7 +49,7 @@ class MainComponent : public juce::AudioAppComponent,
 
     jelodyne::piano::pianoSynth synth;
 
-    juce::AudioDeviceManager device_manager;
+    juce::AudioDeviceManager deviceManager;
     double startTime;
 
     juce::Random random;
@@ -81,20 +76,20 @@ class MainComponent : public juce::AudioAppComponent,
     double mSampleRate;
 
     juce::AudioFormatManager afm;
-    juce::AudioBuffer<float> file_buffer;
+    juce::AudioBuffer<float> fileBuffer;
     juce::AudioBuffer<float> currentNoteBuffer;
     void loadFile(juce::String path);
-    bool analyze_file = false;
+    bool analyzeFile = false;
     bool addedNoteComponents = false;
 
-    std::vector<jelodyne::note> file_notes;
+    std::vector<jelodyne::note> fileNotes;
     std::vector<std::unique_ptr<jelodyne::NoteComponent>> noteComponents;
     int currentNoteStartSample = -1;
     int currentNoteEndSample = -1;
     bool shouldPlayLoopingNote();
     int position = 0;
 
-    int getYCoordinateForNote(int noteNumber, int endNote);
+    // int getYCoordinateForNote(int noteNumber, int endNote);
     //==============================================================================
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)

@@ -1,5 +1,6 @@
 #include "mainComponent.h"
 #include "common.h"
+#include "juce_audio_basics/juce_audio_basics.h"
 #include "note.h"
 #include "noteComponent.h"
 #include "piano.h"
@@ -42,8 +43,8 @@ MainComponent::MainComponent()
         //}
         //
         midiName = i.name;
-        device_manager.setMidiInputDeviceEnabled(i.identifier, true);
-        device_manager.addMidiInputDeviceCallback(i.identifier, this);
+        deviceManager.setMidiInputDeviceEnabled(i.identifier, true);
+        deviceManager.addMidiInputDeviceCallback(i.identifier, this);
     }
 
     DBG("activating device " << midiName);
@@ -87,12 +88,6 @@ bool MainComponent::shouldPlayLoopingNote() {
 
 void MainComponent::getNextAudioBlock(
     const juce::AudioSourceChannelInfo &bufferToFill) {
-    // Your audio-processing code goes here!
-
-    // For more details, see the help for AudioProcessor::getNextAudioBlock()
-
-    //  Right now we are not producing any data, in which case we need to clear
-    // the buffer (to prevent the output of random noise)
     bufferToFill.clearActiveBufferRegion();
 
     kbState.processNextMidiBuffer(midiBuffer, bufferToFill.startSample,
@@ -111,10 +106,10 @@ void MainComponent::getNextAudioBlock(
             pushNextSampleIntoFifo(channelData[i]);
     }
 
-    if (analyze_file) {
-        if (file_buffer.getNumChannels() > 0) {
-            auto *channelData = file_buffer.getReadPointer(0);
-            int numSamples = file_buffer.getNumSamples();
+    if (analyzeFile) {
+        if (fileBuffer.getNumChannels() > 0) {
+            auto *channelData = fileBuffer.getReadPointer(0);
+            int numSamples = fileBuffer.getNumSamples();
             for (auto i = 0; i < numSamples; i++) {
                 pushNextSampleIntoFifo(channelData[i]);
                 if (nextFFTBlockReady) {
@@ -142,6 +137,7 @@ void MainComponent::getNextAudioBlock(
                     // to note number
 
                     // only add to notes if notes is between C2 and C5
+                    // also, we aren't setting end sample here--we do it later
                     if (frequency > 65.f && frequency < 520) {
                         jelodyne::note note;
                         note.noteNumber = jelodyne::noteNameToNumber(
@@ -151,29 +147,29 @@ void MainComponent::getNextAudioBlock(
                             note.startSample = i;
                             note.originalFrequency = frequency;
 
-                            this->file_notes.push_back(note);
+                            this->fileNotes.push_back(note);
                         }
                     }
                 }
             }
-            analyze_file = false;
+            analyzeFile = false;
         }
         DBG("analysis for file done.");
 
         // set end samples for all notes
         for (std::vector<jelodyne::note>::size_type i = 0;
-             i != file_notes.size(); i++) {
+             i != fileNotes.size(); i++) {
 
-            if (i + 1 != file_notes.size()) {
-                file_notes[i].endSample = file_notes[i + 1].startSample;
+            if (i + 1 != fileNotes.size()) {
+                fileNotes[i].endSample = fileNotes[i + 1].startSample;
             }
         }
 
         // TODO: cleanup
-        jelodyne::consolidateDuplicateNotes(this->file_notes);
-        jelodyne::consolidateDuplicateNotes(this->file_notes);
-        jelodyne::consolidateDuplicateNotes(this->file_notes);
-        jelodyne::consolidateDuplicateNotes(this->file_notes);
+        jelodyne::consolidateDuplicateNotes(this->fileNotes);
+        jelodyne::consolidateDuplicateNotes(this->fileNotes);
+        jelodyne::consolidateDuplicateNotes(this->fileNotes);
+        jelodyne::consolidateDuplicateNotes(this->fileNotes);
 
         /*
         for (auto n : file_notes) {
@@ -183,23 +179,22 @@ void MainComponent::getNextAudioBlock(
                         << n.end_sample << " and has an original frequency of "
                         << n.original_frequency);
         }*/
-        jelodyne::removePitchArtifacts(this->file_notes, this->fftSize);
+        jelodyne::removePitchArtifacts(this->fileNotes, this->fftSize);
 
-        jelodyne::consolidateDuplicateNotes(this->file_notes);
-        jelodyne::consolidateDuplicateNotes(this->file_notes);
-        jelodyne::consolidateDuplicateNotes(this->file_notes);
+        jelodyne::consolidateDuplicateNotes(this->fileNotes);
+        jelodyne::consolidateDuplicateNotes(this->fileNotes);
+        jelodyne::consolidateDuplicateNotes(this->fileNotes);
 
         for (std::vector<jelodyne::note>::size_type i = 0;
-             i != file_notes.size(); i++) {
+             i != fileNotes.size(); i++) {
 
             DBG("note is "
-                << juce::MidiMessage::getMidiNoteName(file_notes[i].noteNumber,
+                << juce::MidiMessage::getMidiNoteName(fileNotes[i].noteNumber,
                                                       true, true, 3)
                 << " and number lasts "
-                << (file_notes[i].endSample - file_notes[i].startSample)
+                << (fileNotes[i].endSample - fileNotes[i].startSample)
                 << " which is "
-                << (file_notes[i].endSample - file_notes[i].startSample) /
-                       41000.0
+                << (fileNotes[i].endSample - fileNotes[i].startSample) / 41000.0
                 << " seconds" << " samples");
         }
     }
@@ -268,12 +263,12 @@ void MainComponent::loadFile(juce::String path) {
 
     if (reader.get() != nullptr) {
         auto duration = reader->lengthInSamples / reader->sampleRate;
-        file_buffer.setSize((int)reader->numChannels,
-                            (int)reader->lengthInSamples);
+        fileBuffer.setSize((int)reader->numChannels,
+                           (int)reader->lengthInSamples);
 
-        reader->read(&file_buffer, 0, (int)reader->lengthInSamples, 0, true,
+        reader->read(&fileBuffer, 0, (int)reader->lengthInSamples, 0, true,
                      true);
-        analyze_file = true;
+        analyzeFile = true;
     } else {
         DBG("READER FOR " << path << " DOES NOT EXIST");
     }
@@ -386,7 +381,7 @@ void MainComponent::paint(juce::Graphics &g) {
         g.setColour(isBlack ? juce::Colours::darkgrey
                             : juce::Colours::lightgrey);
 
-        auto yVal = getYCoordinateForNote(noteNumber, endNote);
+        auto yVal = jelodyne::getYCoordinateForNote(noteNumber, endNote);
 
         juce::Rectangle<int> drawArea;
         drawArea.setBounds(midiKeyboardWidth, yVal, cellWidth, cellHeight);
@@ -402,21 +397,23 @@ void MainComponent::paint(juce::Graphics &g) {
         }
     }
 
-    if (analyze_file == false && addedNoteComponents == false) {
-        this->noteComponents.resize(file_notes.size());
+    if (analyzeFile == false && addedNoteComponents == false) {
+        this->noteComponents.resize(fileNotes.size());
 
-        for (auto n : file_notes) {
+        // TODO: find a way to actually position these properly later on
+        for (auto n : fileNotes) {
             // DBG("creating NoteComponent instances...");
             auto rect = juce::Rectangle<int>(
-                midiKeyboardWidth, getYCoordinateForNote(n.noteNumber, endNote),
+                midiKeyboardWidth + (cellWidth * (n.startSample / 18000)),
+                jelodyne::getYCoordinateForNote(n.noteNumber, endNote),
                 cellWidth, cellHeight);
 
             auto x = std::make_unique<jelodyne::NoteComponent>();
-            // x->addChangeListener(this);
             x->noteData = n;
+            x->setListener(this);
+
             x->setBounds(rect);
             addAndMakeVisible(*x);
-            x->setListener(this);
 
             this->noteComponents.push_back(std::move(x));
         }
@@ -425,24 +422,9 @@ void MainComponent::paint(juce::Graphics &g) {
     }
 }
 
-int MainComponent::getYCoordinateForNote(int noteNumber, int endNote) {
-    // TODO: look for optimizations in this function
-    float preciseCellHeight = 19.2f;
-    int yValueWithoutOffset =
-        ((float)((float)endNote - noteNumber) * preciseCellHeight);
-
-    int yOffset = 8;
-
-    return yValueWithoutOffset + yOffset;
-}
-
 void MainComponent::resized() {
     pianoRoll.setBounds(0, 0, this->midiKeyboardWidth, WINDOW_HEIGHT);
 }
-
-/*void MainComponent::changeListenerCallback(juce::ChangeBroadcaster *source) {
-    DBG("change listerner callback called in mainComponent");
-}*/
 
 void MainComponent::JListenerCallback(void *data, void *metadata,
                                       JBroadcaster *source) {
@@ -461,8 +443,8 @@ void MainComponent::JListenerCallback(void *data, void *metadata,
 
         // copy only the data from current note from file_buffer into
         // currentNoteBuffer
-        int numChannels = file_buffer.getNumChannels();
-        int totalSamples = file_buffer.getNumSamples();
+        int numChannels = fileBuffer.getNumChannels();
+        int totalSamples = fileBuffer.getNumSamples();
         int numSamples = currentNoteEndSample - currentNoteStartSample;
         int startSample = currentNoteStartSample;
 
@@ -475,7 +457,7 @@ void MainComponent::JListenerCallback(void *data, void *metadata,
         this->currentNoteBuffer.setSize(numChannels, numSamples);
 
         for (int channel = 0; channel < numChannels; ++channel) {
-            this->currentNoteBuffer.copyFrom(channel, 0, file_buffer, channel,
+            this->currentNoteBuffer.copyFrom(channel, 0, fileBuffer, channel,
                                              startSample, numSamples);
         }
     }
