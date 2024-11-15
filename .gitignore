@@ -10,3 +10,4 @@ Makefile
 .vscode/
 .cache/
 vgcore*
+rubberband/

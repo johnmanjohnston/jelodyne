@@ -1,15 +1,34 @@
 #include "shift.h"
+#include "rubberband/RubberBandStretcher.h"
 
 void jelodyne::shifter::shift(juce::AudioBuffer<float> &buffer,
                               float shiftAmount) {
-    DBG("shift() called");
-    juce::Random random;
 
-    for (auto channel = 0; channel < buffer.getNumChannels(); ++channel) {
-        auto *bufWriter = buffer.getWritePointer(channel, 0);
+    int numChannels = buffer.getNumChannels();
+    int numSamples = buffer.getNumSamples();
 
-        for (auto sample = 0; sample < buffer.getNumSamples(); ++sample) {
-            bufWriter[sample] = random.nextFloat() * .25f - .125f;
-        }
+    // so that rubberband can process it
+    std::vector<const float *> inputChannels;
+    for (int channel = 0; channel < numChannels; ++channel) {
+        inputChannels.push_back(buffer.getReadPointer(channel));
     }
+
+    // initiailize rubberband and process audio
+    RubberBand::RubberBandStretcher stretcher(
+        44100, (size_t)numChannels,
+        RubberBand::RubberBandStretcher::OptionProcessRealTime |
+            RubberBand::RubberBandStretcher::OptionPitchHighQuality);
+
+    stretcher.setPitchScale(std::pow(2, shiftAmount / 12.f));
+
+    stretcher.process(inputChannels.data(), (size_t)numSamples, false);
+
+    // write to buffer
+    std::vector<float *> outputChannels;
+    for (int ch = 0; ch < numChannels; ++ch) {
+        outputChannels.push_back(buffer.getWritePointer(ch));
+    }
+
+    const int availableSamples = stretcher.available();
+    stretcher.retrieve(outputChannels.data(), (size_t)availableSamples);
 }

@@ -43,5 +43,5 @@ void jelodyne::NoteComponent::mouseWheelMove(
     repaint();
     getParentComponent()->repaint(boundsWithinParentBeforeUpdating);
 
-    shifter::shift(noteData.buffer, 0.f);
+    shifter::shift(noteData.buffer, 1.f);
 }
