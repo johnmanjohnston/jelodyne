@@ -1,9 +1,9 @@
 #include "mainComponent.h"
 #include "common.h"
-#include "juce_audio_basics/juce_audio_basics.h"
 #include "note.h"
 #include "noteComponent.h"
 #include "piano.h"
+#include "shift.h"
 #include "utility.h"
 #include <cmath>
 #include <vector>
@@ -38,10 +38,6 @@ MainComponent::MainComponent()
     auto midi_inputs = juce::MidiInput::getAvailableDevices();
     juce::String midiName = "";
     for (auto i : midi_inputs) {
-        //   if (device_manager.isMidiInputDeviceEnabled(i.identifier)) {
-        //     device_manager.setMidiInputDeviceEnabled(i.identifier, true);
-        //}
-        //
         midiName = i.name;
         deviceManager.setMidiInputDeviceEnabled(i.identifier, true);
         deviceManager.addMidiInputDeviceCallback(i.identifier, this);
@@ -383,16 +379,6 @@ juce::String MainComponent::frequencyToNote(float input) {
         return notes[retval_index];
 }
 
-juce::AudioBuffer<float>
-MainComponent::getShifted(juce::AudioBuffer<float> orginal,
-                          float orginalFrequency, float shiftAmount) {
-    juce::AudioBuffer<float> retval = orginal;
-
-    // TODO: this function
-
-    return retval;
-}
-
 void MainComponent::releaseResources() {
     // This will be called when the audio device stops, or when it is
     // being restarted due to a setting change.
@@ -411,11 +397,7 @@ void MainComponent::paint(juce::Graphics &g) {
     int cellWidth = 22;
     g.setFont(16.f);
 
-    // TODO: move the creation of MIDI note cells (and drawing notes on
-    // those cells) into its own seperate component
     for (int i = 0; i <= endNote - startNote; ++i) {
-        // g.setColour(juce::Colours::white);
-
         int noteNumber = endNote - i;
 
         bool isBlack = juce::MidiMessage::isMidiNoteBlack(noteNumber);
@@ -469,7 +451,6 @@ void MainComponent::resized() {
 
 void MainComponent::JListenerCallback(void *data, void *metadata,
                                       JBroadcaster *source) {
-    // TODO: find a way to avoid repetition
     int typecode = *((int *)(&metadata));
 
     if (typecode == TYPECODE_NOTE) {

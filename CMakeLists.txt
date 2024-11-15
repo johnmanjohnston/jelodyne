@@ -37,7 +37,8 @@ target_sources(jelodyne PRIVATE
     src/note.cpp
     src/utility.cpp
     src/noteComponent.cpp
-    src/jlistener/jlistenerbroadcaster.cpp)
+    src/jlistener/jlistenerbroadcaster.cpp
+    src/shift.cpp)
 
 
 target_compile_definitions(jelodyne PRIVATE

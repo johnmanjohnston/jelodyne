@@ -88,10 +88,6 @@ class MainComponent : public juce::AudioAppComponent,
     int position = 0;
     jelodyne::note *currentLoopingNote = nullptr;
 
-    juce::AudioBuffer<float> getShifted(juce::AudioBuffer<float> orginal,
-                                        float orginalFrequency,
-                                        float shiftAmount);
-
     // int getYCoordinateForNote(int noteNumber, int endNote);
     //==============================================================================
 

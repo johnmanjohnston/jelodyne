@@ -1,6 +1,6 @@
 #include "noteComponent.h"
 #include "common.h"
-#include "juce_graphics/juce_graphics.h"
+#include "shift.h"
 #include "utility.h"
 
 jelodyne::NoteComponent::NoteComponent()
@@ -42,4 +42,6 @@ void jelodyne::NoteComponent::mouseWheelMove(
 
     repaint();
     getParentComponent()->repaint(boundsWithinParentBeforeUpdating);
+
+    shifter::shift(noteData.buffer, 0.f);
 }

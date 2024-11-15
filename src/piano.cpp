@@ -102,10 +102,6 @@ void jelodyne::piano::pianoRoll::drawBlackNote(int midiNoteNumber, Graphics &g,
         g.drawRect(area);
     } else {
         g.setColour(c.brighter());
-        auto sideIndent = 1.0f / 8.0f;
-        auto topIndent = 7.0f / 8.0f;
-        auto w = area.getWidth();
-        auto h = area.getHeight();
     }
 }
 
