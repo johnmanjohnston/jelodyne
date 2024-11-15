@@ -14,6 +14,7 @@ void jelodyne::shifter::shift(juce::AudioBuffer<float> &buffer,
     }
 
     // initiailize rubberband and process audio
+    // TODO: sampleRate is hardcoded at 44100 here--change that later
     RubberBand::RubberBandStretcher stretcher(
         44100, (size_t)numChannels,
         RubberBand::RubberBandStretcher::OptionProcessRealTime |

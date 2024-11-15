@@ -43,5 +43,6 @@ void jelodyne::NoteComponent::mouseWheelMove(
     repaint();
     getParentComponent()->repaint(boundsWithinParentBeforeUpdating);
 
-    shifter::shift(noteData.buffer, 1.f);
+    float shiftAmount = (wheel.deltaY > 0.f) ? 1.f : -1.f;
+    shifter::shift(noteData.buffer, shiftAmount);
 }
