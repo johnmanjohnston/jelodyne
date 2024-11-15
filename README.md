@@ -19,7 +19,7 @@ git clone https://github.com/breakfastquay/rubberband
 ```shell
 cmake .
 make
-./jelodyne_artefacts/DEBUG/
+./jelodyne_artefacts/DEBUG/jelodyne
 ```
 ### Windows:
 TODO
