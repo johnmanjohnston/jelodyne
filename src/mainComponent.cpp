@@ -433,6 +433,7 @@ void MainComponent::paint(juce::Graphics &g) {
 
             auto x = std::make_unique<jelodyne::NoteComponent>();
             x->noteData = n;
+            x->orginalNoteData = n;
             x->setListener(this);
 
             x->setBounds(rect);

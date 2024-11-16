@@ -2,7 +2,13 @@
 #include "rubberband/RubberBandStretcher.h"
 
 void jelodyne::shifter::shift(juce::AudioBuffer<float> &buffer,
+                              const juce::AudioBuffer<float> orginalBuffer,
                               float shiftAmount) {
+    buffer = orginalBuffer;
+
+    if (shiftAmount == 0.f) {
+        return;
+    }
 
     int numChannels = buffer.getNumChannels();
     int numSamples = buffer.getNumSamples();

@@ -18,6 +18,7 @@ class NoteComponent
                         const juce::MouseWheelDetails &wheel) override;
 
     jelodyne::note noteData;
+    jelodyne::note orginalNoteData;
 
   private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NoteComponent)
