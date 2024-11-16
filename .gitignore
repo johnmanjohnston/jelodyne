@@ -11,3 +11,4 @@ Makefile
 .cache/
 vgcore*
 rubberband/
+compile_commands.json
