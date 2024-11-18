@@ -3,7 +3,7 @@
 #include "note.h"
 #include "noteComponent.h"
 #include "piano.h"
-#include "shift.h"
+#include "scale.h"
 #include "utility.h"
 #include <cmath>
 #include <vector>
@@ -28,6 +28,8 @@ MainComponent::MainComponent()
         setAudioChannels(2, 2);
     }
 
+    // pianoRoll.pianoScale.updateScale(KEY_Db, MINOR, PENTATONIC);
+    pianoRoll.pianoScale.updateScale(KEY_C, MINOR, PENTATONIC);
     addAndMakeVisible(pianoRoll);
     pianoRoll.setKeyWidth(32.7f);
     pianoRoll.setAvailableRange(12 * (2 + 2), 12 * (5 + 2)); // C2 to C5
@@ -447,7 +449,7 @@ void MainComponent::paint(juce::Graphics &g) {
 }
 
 void MainComponent::resized() {
-    pianoRoll.setBounds(0, 0, this->midiKeyboardWidth, WINDOW_HEIGHT);
+    pianoRoll.setBounds(0, 0, this->midiKeyboardWidth, EDITOR_HEIGHT);
 }
 
 void MainComponent::JListenerCallback(void *data, void *metadata,

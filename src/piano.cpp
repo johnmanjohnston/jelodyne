@@ -19,6 +19,10 @@ void jelodyne::piano::pianoRoll::drawWhiteNote(int midiNoteNumber, Graphics &g,
     if (isOver)
         c = Colour(210, 210, 210);
 
+    if (pianoScale.isNoteInScale(midiNoteNumber)) {
+        c = juce::Colours::red;
+    }
+
     g.setColour(c);
     g.fillRect(area);
 
@@ -93,6 +97,10 @@ void jelodyne::piano::pianoRoll::drawBlackNote(int midiNoteNumber, Graphics &g,
         c = Colour(30, 30, 30);
     if (isOver)
         c = Colour(34, 34, 34);
+
+    if (pianoScale.isNoteInScale(midiNoteNumber)) {
+        c = juce::Colours::red;
+    }
 
     g.setColour(c);
     g.fillRect(area);

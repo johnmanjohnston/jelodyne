@@ -8,7 +8,6 @@
 #include "noteComponent.h"
 
 #include <JuceHeader.h>
-#include <memory>
 
 //==============================================================================
 /*
@@ -39,8 +38,11 @@ class MainComponent : public juce::AudioAppComponent,
     void JListenerCallback(void *data, void *metadata,
                            JBroadcaster *source) override;
 
-    int WINDOW_HEIGHT = 720;
-    int WINDOW_WIDTH = 1280;
+    int EDITOR_HEIGHT = 720;
+    int EDITOR_WIDTH = 1280;
+
+    int WINDOW_HEIGHT = EDITOR_HEIGHT + 30;
+    int WINDOW_WIDTH = EDITOR_WIDTH;
 
     int midiKeyboardWidth = 64;
     jelodyne::piano::pianoRoll pianoRoll;

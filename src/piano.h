@@ -1,5 +1,6 @@
 #pragma once
 #include "juce_audio_basics/juce_audio_basics.h"
+#include "scale.h"
 #include <JuceHeader.h>
 
 // when user is correcting their pitch, it's useful to have a piano as well to
@@ -8,6 +9,7 @@ namespace jelodyne::piano {
 class pianoRoll : public juce::MidiKeyboardComponent {
   public:
     pianoRoll(MidiKeyboardState &state, Orientation orientation);
+    scale pianoScale;
 
   protected:
     virtual void drawWhiteNote(int midiNoteNumber, Graphics &g,
