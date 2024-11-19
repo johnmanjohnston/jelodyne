@@ -40,5 +40,7 @@ class scale {
 
   private:
     juce::String getName(int noteNumber);
+
+    juce::String notesInScale[7];
 };
 } // namespace jelodyne
