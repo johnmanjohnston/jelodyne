@@ -19,6 +19,9 @@ class pianoRoll : public juce::MidiKeyboardComponent {
     virtual void drawBlackNote(int midiNoteNumber, Graphics &g,
                                Rectangle<float> area, bool isDown, bool isOver,
                                Colour noteFillColour) override;
+
+  private:
+    void drawScaleOverlay(Graphics &g, Rectangle<float> area, bool isBlack);
 };
 
 class pianoSynth : public juce::Synthesiser {

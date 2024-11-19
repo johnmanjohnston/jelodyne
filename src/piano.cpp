@@ -7,6 +7,21 @@ jelodyne::piano::pianoRoll::pianoRoll(MidiKeyboardState &state,
                                       Orientation orientation)
     : MidiKeyboardComponent(state, orientation) {}
 
+void jelodyne::piano::pianoRoll::drawScaleOverlay(Graphics &g,
+                                                  Rectangle<float> area,
+                                                  bool isBlack) {
+    Colour c = Colours::purple;
+    g.setColour(c);
+
+    if (isBlack)
+        g.setOpacity(0.6f);
+    else
+        g.setOpacity(0.2f);
+
+    g.fillRect(area);
+    g.setOpacity(1.f);
+}
+
 void jelodyne::piano::pianoRoll::drawWhiteNote(int midiNoteNumber, Graphics &g,
                                                Rectangle<float> area,
                                                bool isDown, bool isOver,
@@ -19,12 +34,11 @@ void jelodyne::piano::pianoRoll::drawWhiteNote(int midiNoteNumber, Graphics &g,
     if (isOver)
         c = Colour(210, 210, 210);
 
-    if (pianoScale.isNoteInScale(midiNoteNumber)) {
-        c = juce::Colours::red;
-    }
-
     g.setColour(c);
     g.fillRect(area);
+
+    if (pianoScale.isNoteInScale(midiNoteNumber))
+        drawScaleOverlay(g, area, false);
 
     const auto currentOrientation = getOrientation();
 
@@ -98,12 +112,11 @@ void jelodyne::piano::pianoRoll::drawBlackNote(int midiNoteNumber, Graphics &g,
     if (isOver)
         c = Colour(34, 34, 34);
 
-    if (pianoScale.isNoteInScale(midiNoteNumber)) {
-        c = juce::Colours::red;
-    }
-
     g.setColour(c);
     g.fillRect(area);
+
+    if (pianoScale.isNoteInScale(midiNoteNumber))
+        drawScaleOverlay(g, area, true);
 
     if (isDown) {
         g.setColour(noteFillColour);

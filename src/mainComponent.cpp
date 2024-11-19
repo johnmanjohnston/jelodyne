@@ -29,7 +29,7 @@ MainComponent::MainComponent()
     }
 
     // pianoRoll.pianoScale.updateScale(KEY_Db, MINOR, PENTATONIC);
-    pianoRoll.pianoScale.updateScale(KEY_C, MINOR, PENTATONIC);
+    pianoRoll.pianoScale.updateScale(KEY_Db, MINOR, PENTATONIC);
     addAndMakeVisible(pianoRoll);
     pianoRoll.setKeyWidth(32.7f);
     pianoRoll.setAvailableRange(12 * (2 + 2), 12 * (5 + 2)); // C2 to C5
