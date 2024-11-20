@@ -17,9 +17,9 @@ $ git clone https://github.com/breakfastquay/rubberband
 
 - run CMake, then Make, then run the executable
 ```shell
-cmake .
-make
-./jelodyne_artefacts/DEBUG/
+$ cmake .
+$ make
+$ ./jelodyne_artefacts/DEBUG/
 ```
 ### Windows:
 TODO
