@@ -37,7 +37,7 @@ MainComponent::MainComponent()
     // scale selection
     for (int i = 0; i <= 12; ++i) {
         keySelectorBox.addItem(
-            juce::MidiMessage::getMidiNoteName(i + 59, true, false, 1), i);
+            juce::MidiMessage::getMidiNoteName(i + 59, true, false, 1), i + 1);
     }
 
     tonalitySelectorBox.addItem("Major", 1);
