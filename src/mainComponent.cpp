@@ -34,7 +34,25 @@ MainComponent::MainComponent()
     pianoRoll.setKeyWidth(32.7f);
     pianoRoll.setAvailableRange(12 * (2 + 2), 12 * (5 + 2)); // C2 to C5
 
-    // addAndMakeVisible(nc);
+    // scale selection
+    for (int i = 0; i <= 12; ++i) {
+        keySelectorBox.addItem(
+            juce::MidiMessage::getMidiNoteName(i + 59, true, false, 1), i);
+    }
+
+    tonalitySelectorBox.addItem("Major", 1);
+    tonalitySelectorBox.addItem("Minor", 2);
+
+    scaleSelectorBox.addItem("Key Scale", 1);
+    scaleSelectorBox.addItem("Pentatonic", 2);
+
+    addAndMakeVisible(keySelectorBox);
+    addAndMakeVisible(tonalitySelectorBox);
+    addAndMakeVisible(scaleSelectorBox);
+
+    keySelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
+    tonalitySelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
+    scaleSelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
 
     // TODO: move this to prepareToPlay() instead
     auto midi_inputs = juce::MidiInput::getAvailableDevices();
@@ -53,6 +71,16 @@ MainComponent::MainComponent()
 MainComponent::~MainComponent() {
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
+}
+
+void MainComponent::onScalesSelectorBoxesChange() {
+    int newKey = keySelectorBox.getSelectedId() + 59;
+    int newTonality = tonalitySelectorBox.getSelectedId() == 1 ? MAJOR : MINOR;
+    int newScale =
+        scaleSelectorBox.getSelectedId() == 1 ? KEY_SCALE : PENTATONIC;
+
+    pianoRoll.pianoScale.updateScale(newKey, newTonality, newScale);
+    pianoRoll.repaint();
 }
 
 void MainComponent::handleIncomingMidiMessage(
@@ -450,6 +478,9 @@ void MainComponent::paint(juce::Graphics &g) {
 
 void MainComponent::resized() {
     pianoRoll.setBounds(0, 0, this->midiKeyboardWidth, EDITOR_HEIGHT);
+    keySelectorBox.setBounds(1, WINDOW_HEIGHT - 20, 100, 20);
+    tonalitySelectorBox.setBounds(120, WINDOW_HEIGHT - 20, 100, 20);
+    scaleSelectorBox.setBounds(240, WINDOW_HEIGHT - 20, 100, 20);
 }
 
 void MainComponent::JListenerCallback(void *data, void *metadata,
