@@ -74,7 +74,7 @@ MainComponent::~MainComponent() {
 }
 
 void MainComponent::onScalesSelectorBoxesChange() {
-    int newKey = keySelectorBox.getSelectedId() + 59;
+    int newKey = keySelectorBox.getSelectedId() + 59 - 1;
     int newTonality = tonalitySelectorBox.getSelectedId() == 1 ? MAJOR : MINOR;
     int newScale =
         scaleSelectorBox.getSelectedId() == 1 ? KEY_SCALE : PENTATONIC;
