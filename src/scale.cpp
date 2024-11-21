@@ -5,6 +5,12 @@ void jelodyne::scale::updateScale(int newKey, int newTonality, int newScale) {
     this->key = newKey;
     this->scale = newScale;
 
+    if (key == KEY_NO_KEY || tonality == NO_TONALITY || scale == NO_SCALE) {
+        for (int i = 0; i < 7; ++i) {
+            notesInScale[i] = "";
+        }
+    }
+
     if (this->tonality == MINOR) {
         if (this->scale == PENTATONIC) {
             notesInScale[0] = getName(key);
@@ -51,6 +57,9 @@ bool jelodyne::scale::isNoteInScale(int noteNumber) {
     // TODO: this is probably a really inefficient way to check if a note is
     // in the right scale, but this is now a problem for future you
     bool retval = false;
+
+    if (key == KEY_NO_KEY || tonality == NO_TONALITY || scale == NO_SCALE)
+        return retval;
 
     juce::String currentNoteName =
         juce::MidiMessage::getMidiNoteName(noteNumber, false, false, 4);

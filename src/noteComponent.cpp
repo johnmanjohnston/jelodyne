@@ -13,6 +13,12 @@ void jelodyne::NoteComponent::paint(juce::Graphics &g) {
     g.fillRect(getLocalBounds()); // i am embarrased at how much time it took me
                                   // to find out i should use getLocalBounds()
                                   // instead of getBounds()
+
+    g.setColour(juce::Colours::white);
+    g.setFont(12.f);
+    g.drawText(juce::MidiMessage::getMidiNoteName(this->noteData.noteNumber,
+                                                  true, false, 1),
+               getLocalBounds(), juce::Justification::left, false);
 }
 
 void jelodyne::NoteComponent::mouseDown(const juce::MouseEvent &event) {

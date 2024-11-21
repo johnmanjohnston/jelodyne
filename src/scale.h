@@ -22,9 +22,7 @@
 #define KEY_NO_KEY 0x67
 
 // scale
-#define KEY_SCALE                                                              \
-    0xCC01 // TODO: from a musical point of view, I'm not sure if this is a
-           // thing. Change this if it isn't
+#define KEY_SCALE 0xCC01
 #define PENTATONIC 0xCC02
 #define NO_SCALE 0xCC00
 
@@ -40,7 +38,6 @@ class scale {
 
   private:
     juce::String getName(int noteNumber);
-
     juce::String notesInScale[7];
 };
 } // namespace jelodyne

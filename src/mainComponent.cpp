@@ -29,15 +29,26 @@ MainComponent::MainComponent()
     }
 
     // pianoRoll.pianoScale.updateScale(KEY_Db, MINOR, PENTATONIC);
-    pianoRoll.pianoScale.updateScale(KEY_Db, MINOR, PENTATONIC);
+    // pianoRoll.pianoScale.updateScale(KEY_Db, MINOR, PENTATONIC);
+
+    pianoRoll.pianoScale.updateScale(KEY_NO_KEY, NO_TONALITY, NO_SCALE);
+
     addAndMakeVisible(pianoRoll);
     pianoRoll.setKeyWidth(32.7f);
     pianoRoll.setAvailableRange(12 * (2 + 2), 12 * (5 + 2)); // C2 to C5
 
     // scale selection
     for (int i = 0; i <= 12; ++i) {
-        keySelectorBox.addItem(
-            juce::MidiMessage::getMidiNoteName(i + 59, true, false, 1), i + 1);
+        juce::String noteName =
+            juce::MidiMessage::getMidiNoteName(i + 59, true, false, 1);
+
+        // if it's sharp add the flat name also (ex., "C#/Db")
+        if (juce::MidiMessage::isMidiNoteBlack(i + 59))
+            noteName.append("/" + juce::MidiMessage::getMidiNoteName(
+                                      i + 59, false, false, 1),
+                            3);
+
+        keySelectorBox.addItem(noteName, i + 1);
     }
 
     tonalitySelectorBox.addItem("Major", 1);
@@ -74,6 +85,7 @@ MainComponent::~MainComponent() {
 }
 
 void MainComponent::onScalesSelectorBoxesChange() {
+    // TODO: properly handle null key/tonality/scale
     int newKey = keySelectorBox.getSelectedId() + 59 - 1;
     int newTonality = tonalitySelectorBox.getSelectedId() == 1 ? MAJOR : MINOR;
     int newScale =
