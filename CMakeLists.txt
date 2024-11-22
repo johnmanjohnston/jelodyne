@@ -40,6 +40,7 @@ target_sources(jelodyne PRIVATE
     src/jlistener/jlistenerbroadcaster.cpp
     src/shift.cpp
     src/scale.cpp
+    src/playhead.cpp
     rubberband/single/RubberBandSingle.cpp)
 
 
