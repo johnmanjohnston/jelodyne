@@ -6,6 +6,7 @@
 #include "piano.h"
 
 #include "noteComponent.h"
+#include "playhead.h"
 
 #include <JuceHeader.h>
 
@@ -48,6 +49,8 @@ class MainComponent : public juce::AudioAppComponent,
     jelodyne::piano::pianoRoll pianoRoll;
     juce::MidiKeyboardState kbState;
     juce::MidiBuffer midiBuffer;
+
+    jelodyne::playhead playheadComponent;
 
     jelodyne::piano::pianoSynth synth;
 

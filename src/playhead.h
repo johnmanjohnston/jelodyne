@@ -2,7 +2,7 @@
 #include <JuceHeader.h>
 
 namespace jelodyne {
-class playhead : juce::Component {
+class playhead : public juce::Component {
   public:
     playhead();
     int position = -1;

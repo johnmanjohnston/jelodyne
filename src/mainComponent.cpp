@@ -13,6 +13,7 @@ MainComponent::MainComponent()
     : // juce::ChangeListener(),
       pianoRoll(kbState,
                 juce::KeyboardComponentBase::verticalKeyboardFacingRight),
+      playheadComponent(),
       startTime(juce::Time::getMillisecondCounterHiRes() * 0.001),
       forwardFFT(fftOrder) {
     setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -36,6 +37,8 @@ MainComponent::MainComponent()
     addAndMakeVisible(pianoRoll);
     pianoRoll.setKeyWidth(32.7f);
     pianoRoll.setAvailableRange(12 * (2 + 2), 12 * (5 + 2)); // C2 to C5
+
+    addAndMakeVisible(playheadComponent);
 
     // scale selection
     for (int i = 0; i <= 12; ++i) {
@@ -490,6 +493,8 @@ void MainComponent::paint(juce::Graphics &g) {
 
 void MainComponent::resized() {
     pianoRoll.setBounds(0, 0, this->midiKeyboardWidth, EDITOR_HEIGHT);
+    playheadComponent.setBounds(WINDOW_WIDTH / 2, 0, 20, WINDOW_HEIGHT);
+
     keySelectorBox.setBounds(1, WINDOW_HEIGHT - 20, 100, 20);
     tonalitySelectorBox.setBounds(120, WINDOW_HEIGHT - 20, 100, 20);
     scaleSelectorBox.setBounds(240, WINDOW_HEIGHT - 20, 100, 20);
