@@ -446,8 +446,9 @@ void MainComponent::paint(juce::Graphics &g) {
         int noteNumber = endNote - i;
 
         bool isBlack = juce::MidiMessage::isMidiNoteBlack(noteNumber);
-        g.setColour(isBlack ? juce::Colours::darkgrey
-                            : juce::Colours::lightgrey);
+        juce::Colour noteColour =
+            isBlack ? juce::Colour(23, 23, 23) : juce::Colour(45, 45, 45);
+        g.setColour(noteColour);
 
         auto yVal = jelodyne::getYCoordinateForNote(noteNumber, endNote);
 
@@ -457,10 +458,12 @@ void MainComponent::paint(juce::Graphics &g) {
         for (int x = 0; x < (getWidth() - midiKeyboardWidth) / cellWidth; ++x) {
             drawArea.setX(midiKeyboardWidth + (x * cellWidth));
 
-            g.setOpacity(.4f);
+            // fill note
+            g.setColour(noteColour);
             g.fillRect(drawArea);
 
-            g.setOpacity(1.f);
+            // draw outline to make a grid
+            g.setColour(juce::Colour(121, 121, 121).withAlpha(.44f));
             g.drawRect(drawArea);
         }
     }
