@@ -32,7 +32,7 @@ int jelodyne::noteNameToNumber(juce::String keyName,
 }
 
 int jelodyne::getYCoordinateForNote(int noteNumber, int endNote) {
-    float preciseCellHeight = 19.2f;
+    float preciseCellHeight = 19.0f;
     int yValueWithoutOffset =
         ((float)((float)endNote - noteNumber) * preciseCellHeight);
 

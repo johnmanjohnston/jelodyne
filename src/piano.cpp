@@ -105,7 +105,7 @@ void jelodyne::piano::pianoRoll::drawBlackNote(int midiNoteNumber, Graphics &g,
                                                Rectangle<float> area,
                                                bool isDown, bool isOver,
                                                Colour noteFillColour) {
-    auto c = Colour(70, 70, 70);
+    auto c = Colour(40, 40, 40);
 
     if (isDown)
         c = Colour(30, 30, 30);
