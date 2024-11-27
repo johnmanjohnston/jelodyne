@@ -11,6 +11,12 @@ class ControlBar : public juce::Component {
   private:
     juce::Label filenameLabel;
 
+    // scale selection
+    juce::ComboBox keySelectorBox;
+    juce::ComboBox tonalitySelectorBox;
+    juce::ComboBox scaleSelectorBox;
+    void onScalesSelectorBoxesChange();
+
     juce::Font getInterBold();
 };
 } // namespace jelodyne

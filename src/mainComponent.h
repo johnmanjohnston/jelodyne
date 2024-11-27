@@ -94,14 +94,6 @@ class MainComponent : public juce::AudioAppComponent,
     int position = 0;
     jelodyne::note *currentLoopingNote = nullptr;
 
-    /*
-    // scale selection
-    juce::ComboBox keySelectorBox;
-    juce::ComboBox tonalitySelectorBox;
-    juce::ComboBox scaleSelectorBox;
-    void onScalesSelectorBoxesChange();
-    */
-
     jelodyne::ControlBar controlBar;
 
     // int getYCoordinateForNote(int noteNumber, int endNote);

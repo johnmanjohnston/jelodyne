@@ -42,36 +42,6 @@ MainComponent::MainComponent()
 
     addAndMakeVisible(controlBar);
 
-    /*
-    // scale selection
-    for (int i = 0; i <= 12; ++i) {
-        juce::String noteName =
-            juce::MidiMessage::getMidiNoteName(i + 59, true, false, 1);
-
-        // if it's sharp add the flat name also (ex., "C#/Db")
-        if (juce::MidiMessage::isMidiNoteBlack(i + 59))
-            noteName.append("/" + juce::MidiMessage::getMidiNoteName(
-                                      i + 59, false, false, 1),
-                            3);
-
-        keySelectorBox.addItem(noteName, i + 1);
-    }
-
-    tonalitySelectorBox.addItem("Major", 1);
-    tonalitySelectorBox.addItem("Minor", 2);
-
-    scaleSelectorBox.addItem("Key Scale", 1);
-    scaleSelectorBox.addItem("Pentatonic", 2);
-
-    addAndMakeVisible(keySelectorBox);
-    addAndMakeVisible(tonalitySelectorBox);
-    addAndMakeVisible(scaleSelectorBox);
-
-    keySelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
-    tonalitySelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
-    scaleSelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
-    */
-
     // TODO: move this to prepareToPlay() instead
     auto midi_inputs = juce::MidiInput::getAvailableDevices();
     juce::String midiName = "";
@@ -440,7 +410,7 @@ void MainComponent::releaseResources() {
 
 //==============================================================================
 void MainComponent::paint(juce::Graphics &g) {
-    g.fillAll(juce::Colours::black);
+    g.fillAll(juce::Colour(25, 25, 25));
 
     const int startNote = pianoRoll.getRangeStart();
     const int endNote = pianoRoll.getRangeEnd();
@@ -510,7 +480,9 @@ void MainComponent::resized() {
     scaleSelectorBox.setBounds(240, WINDOW_HEIGHT - 20, 100, 20);
     */
 
-    controlBar.setBounds(0, getBounds().getHeight() - 30, WINDOW_WIDTH, 30);
+    int controlBarHeight = 35;
+    controlBar.setBounds(0, getBounds().getHeight() - controlBarHeight,
+                         WINDOW_WIDTH, controlBarHeight);
 }
 
 void MainComponent::JListenerCallback(void *data, void *metadata,
