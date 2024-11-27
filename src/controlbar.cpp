@@ -1,4 +1,6 @@
 #include "controlbar.h"
+#include "common.h"
+#include "scale.h"
 
 jelodyne::ControlBar::ControlBar() : juce::Component() {
     filenameLabel.setColour(juce::Label::textColourId,
@@ -37,7 +39,16 @@ jelodyne::ControlBar::ControlBar() : juce::Component() {
 }
 
 void jelodyne::ControlBar::onScalesSelectorBoxesChange() {
-    DBG("onScalesSelectorBoxesChange() called");
+    int newKey = keySelectorBox.getSelectedId() + 59 - 1;
+    int newTonality = tonalitySelectorBox.getSelectedId() == 1 ? MAJOR : MINOR;
+    int newScale =
+        scaleSelectorBox.getSelectedId() == 1 ? KEY_SCALE : PENTATONIC;
+
+    scale updatedScale;
+    updatedScale.updateScale(newKey, newTonality, newScale);
+
+    broadcastMessage((void *)&updatedScale,
+                     (void *)(uintptr_t)TYPECODE_UPDATED_SCALE_DATA);
 }
 
 void jelodyne::ControlBar::paint(juce::Graphics &g) {

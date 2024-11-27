@@ -1,8 +1,9 @@
 #pragma once
+#include "jlistener/jlistenerbroadcaster.h"
 #include <JuceHeader.h>
 
 namespace jelodyne {
-class ControlBar : public juce::Component {
+class ControlBar : public juce::Component, public JBroadcaster {
   public:
     ControlBar();
     void paint(juce::Graphics &g) override;

@@ -41,6 +41,7 @@ MainComponent::MainComponent()
     addAndMakeVisible(playheadComponent);
 
     addAndMakeVisible(controlBar);
+    controlBar.setListener(this);
 
     // TODO: move this to prepareToPlay() instead
     auto midi_inputs = juce::MidiInput::getAvailableDevices();
@@ -60,19 +61,6 @@ MainComponent::~MainComponent() {
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
 }
-
-/*
-void MainComponent::onScalesSelectorBoxesChange() {
-    // TODO: properly handle null key/tonality/scale
-    int newKey = keySelectorBox.getSelectedId() + 59 - 1;
-    int newTonality = tonalitySelectorBox.getSelectedId() == 1 ? MAJOR : MINOR;
-    int newScale =
-        scaleSelectorBox.getSelectedId() == 1 ? KEY_SCALE : PENTATONIC;
-
-    pianoRoll.pianoScale.updateScale(newKey, newTonality, newScale);
-    pianoRoll.repaint();
-}
-*/
 
 void MainComponent::handleIncomingMidiMessage(
     juce::MidiInput *source, const juce::MidiMessage &message) {
@@ -496,6 +484,11 @@ void MainComponent::JListenerCallback(void *data, void *metadata,
     if (typecode == TYPECODE_CLEAR_NOTE) {
         position = 0;
         currentLoopingNote = nullptr;
+    }
+
+    if (typecode == TYPECODE_UPDATED_SCALE_DATA) {
+        pianoRoll.pianoScale = *((jelodyne::scale *)data);
+        pianoRoll.repaint();
     }
 
     /*
