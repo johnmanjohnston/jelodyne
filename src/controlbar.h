@@ -10,5 +10,7 @@ class ControlBar : public juce::Component {
 
   private:
     juce::Label filenameLabel;
+
+    juce::Font getInterBold();
 };
 } // namespace jelodyne

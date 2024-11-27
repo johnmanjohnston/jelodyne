@@ -28,6 +28,10 @@ juce_add_gui_app(jelodyne
                                     UIInterfaceOrientationLandscapeLeft
                                     UIInterfaceOrientationLandscapeRight)
 
+                                #add_subdirectory(assets)
+juce_add_binary_data(jelodyneBinaryData SOURCES 
+    assets/Inter_24pt-BoldItalic.ttf)
+
 juce_generate_juce_header(jelodyne)
 target_sources(jelodyne PRIVATE
     src/main.cpp
@@ -64,6 +68,7 @@ target_compile_definitions(jelodyne PRIVATE
     JUCE_SILENCE_XCODE_15_LINKER_WARNING=1)
 
 target_link_libraries(jelodyne PRIVATE
+    jelodyneBinaryData
     juce::juce_analytics
     juce::juce_animation
     juce::juce_audio_utils

@@ -12,3 +12,5 @@ Makefile
 vgcore*
 rubberband/
 compile_commands.json
+libjelodyneBinaryData.a
+juce_binarydata_jelodyneBinaryData/
