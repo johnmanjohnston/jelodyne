@@ -36,7 +36,7 @@ int jelodyne::getYCoordinateForNote(int noteNumber, int endNote) {
     int yValueWithoutOffset =
         ((float)((float)endNote - noteNumber) * preciseCellHeight);
 
-    int yOffset = 8;
+    int yOffset = 14;
 
     return yValueWithoutOffset + yOffset;
 }

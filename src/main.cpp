@@ -28,7 +28,8 @@ class jelodyneApplication : public juce::JUCEApplication {
         // This method is where you should put your application's initialisation
         // code..
 
-        mainWindow.reset(new MainWindow(getApplicationName()));
+        mainWindow.reset(new MainWindow(getApplicationName() + " " +
+                                        getApplicationVersion()));
     }
 
     void shutdown() override {
