@@ -41,6 +41,7 @@ target_sources(jelodyne PRIVATE
     src/shift.cpp
     src/scale.cpp
     src/playhead.cpp
+    src/controlbar.cpp
     rubberband/single/RubberBandSingle.cpp)
 
 

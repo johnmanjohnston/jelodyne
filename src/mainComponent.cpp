@@ -13,7 +13,7 @@ MainComponent::MainComponent()
     : // juce::ChangeListener(),
       pianoRoll(kbState,
                 juce::KeyboardComponentBase::verticalKeyboardFacingRight),
-      playheadComponent(),
+      playheadComponent(), controlBar(),
       startTime(juce::Time::getMillisecondCounterHiRes() * 0.001),
       forwardFFT(fftOrder) {
     setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -40,6 +40,9 @@ MainComponent::MainComponent()
 
     addAndMakeVisible(playheadComponent);
 
+    addAndMakeVisible(controlBar);
+
+    /*
     // scale selection
     for (int i = 0; i <= 12; ++i) {
         juce::String noteName =
@@ -67,6 +70,7 @@ MainComponent::MainComponent()
     keySelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
     tonalitySelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
     scaleSelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
+    */
 
     // TODO: move this to prepareToPlay() instead
     auto midi_inputs = juce::MidiInput::getAvailableDevices();
@@ -87,6 +91,7 @@ MainComponent::~MainComponent() {
     shutdownAudio();
 }
 
+/*
 void MainComponent::onScalesSelectorBoxesChange() {
     // TODO: properly handle null key/tonality/scale
     int newKey = keySelectorBox.getSelectedId() + 59 - 1;
@@ -97,6 +102,7 @@ void MainComponent::onScalesSelectorBoxesChange() {
     pianoRoll.pianoScale.updateScale(newKey, newTonality, newScale);
     pianoRoll.repaint();
 }
+*/
 
 void MainComponent::handleIncomingMidiMessage(
     juce::MidiInput *source, const juce::MidiMessage &message) {
@@ -463,7 +469,7 @@ void MainComponent::paint(juce::Graphics &g) {
             g.fillRect(drawArea);
 
             // draw outline to make a grid
-            g.setColour(juce::Colour(121, 121, 121).withAlpha(.44f));
+            g.setColour(juce::Colour(121, 121, 121).withAlpha(.2f));
             g.drawRect(drawArea);
         }
     }
@@ -498,9 +504,13 @@ void MainComponent::resized() {
     pianoRoll.setBounds(0, 0, this->midiKeyboardWidth, EDITOR_HEIGHT);
     playheadComponent.setBounds(WINDOW_WIDTH / 2, 0, 20, WINDOW_HEIGHT);
 
+    /*
     keySelectorBox.setBounds(1, WINDOW_HEIGHT - 20, 100, 20);
     tonalitySelectorBox.setBounds(120, WINDOW_HEIGHT - 20, 100, 20);
     scaleSelectorBox.setBounds(240, WINDOW_HEIGHT - 20, 100, 20);
+    */
+
+    controlBar.setBounds(0, getBounds().getHeight() - 30, WINDOW_WIDTH, 30);
 }
 
 void MainComponent::JListenerCallback(void *data, void *metadata,
