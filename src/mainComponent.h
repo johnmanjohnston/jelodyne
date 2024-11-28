@@ -2,6 +2,7 @@
 
 #include "clip.h"
 #include "jlistener/jlistenerbroadcaster.h"
+#include "lookandfeel.h"
 #include "note.h"
 #include "piano.h"
 
@@ -35,6 +36,8 @@ class MainComponent : public juce::AudioAppComponent,
     //==============================================================================
     void paint(juce::Graphics &g) override;
     void resized() override;
+
+    jelodyne::JelodyneLookAndFeel jLookAndFeel;
 
     // void changeListenerCallback(juce::ChangeBroadcaster *source) override;
     void JListenerCallback(void *data, void *metadata,

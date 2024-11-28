@@ -59,17 +59,16 @@ void jelodyne::ControlBar::paint(juce::Graphics &g) {
 }
 
 void jelodyne::ControlBar::resized() {
-    filenameLabel.setBounds(getLocalBounds().getX(), getLocalBounds().getY(),
-                            256, getLocalBounds().getHeight());
-
     auto lb = getLocalBounds();
-    keySelectorBox.setBounds(lb.getX() + 400, lb.getY() + 5, 100,
+    filenameLabel.setBounds(lb.getX(), lb.getY(), 256, lb.getHeight());
+
+    keySelectorBox.setBounds(lb.getX() + 400, lb.getY() + 5, 80,
                              lb.getHeight() - 10);
 
-    tonalitySelectorBox.setBounds(lb.getX() + 510, lb.getY() + 5, 100,
+    tonalitySelectorBox.setBounds(lb.getX() + 490, lb.getY() + 5, 80,
                                   lb.getHeight() - 10);
 
-    scaleSelectorBox.setBounds(lb.getX() + 620, lb.getY() + 5, 100,
+    scaleSelectorBox.setBounds(lb.getX() + 580, lb.getY() + 5, 110,
                                lb.getHeight() - 10);
 }
 

@@ -40,6 +40,7 @@ MainComponent::MainComponent()
 
     addAndMakeVisible(playheadComponent);
 
+    controlBar.setLookAndFeel(&jLookAndFeel);
     addAndMakeVisible(controlBar);
     controlBar.setListener(this);
 
@@ -60,6 +61,7 @@ MainComponent::MainComponent()
 MainComponent::~MainComponent() {
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
+    controlBar.setLookAndFeel(nullptr);
 }
 
 void MainComponent::handleIncomingMidiMessage(
