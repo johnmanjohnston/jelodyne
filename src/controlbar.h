@@ -20,6 +20,7 @@ class ControlBar : public juce::Component, public JBroadcaster {
 
     // other buttons
     juce::TextButton quitButton;
+    juce::TextButton exportButton;
 
     juce::Font getInterBold();
 };

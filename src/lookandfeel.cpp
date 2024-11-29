@@ -2,27 +2,27 @@
 
 jelodyne::JelodyneLookAndFeel::JelodyneLookAndFeel() {
     // set ComboBox colors
-    setColour(juce::ComboBox::ColourIds::backgroundColourId,
-              elementBg); // set bg
-
     setColour(juce::ComboBox::ColourIds::focusedOutlineColourId,
               elementBg); // set focused outline
 
     setColour(juce::ComboBox::ColourIds::textColourId,
-              juce::Colour(200, 200, 200)); // set text color
+              elementText); // set text color
 
     setColour(juce::ComboBox::ColourIds::arrowColourId,
-              juce::Colour(200, 200, 200)); // set arrow color
+              elementText); // set arrow color
 
     setColour(juce::PopupMenu::ColourIds::backgroundColourId,
               elementBg.brighter(.1f)); // set dropdown color
 
     setColour(juce::ComboBox::ColourIds::outlineColourId,
-              juce::Colour(65, 65, 65)); // set outline
+              elementOutline); // set outline
 
     // set TextButton colors
-    setColour(juce::TextButton::ColourIds::buttonColourId,
-              elementBg); // set bg color
+    setColour(juce::TextButton::ColourIds::textColourOnId,
+              elementText); // set text color for on
+
+    setColour(juce::TextButton::ColourIds::textColourOffId,
+              elementText); // set text color for off
 }
 
 juce::ColourGradient jelodyne::JelodyneLookAndFeel::getElementBgGradient(
@@ -93,6 +93,11 @@ void jelodyne::JelodyneLookAndFeel::drawButtonBackground(
         g.setColour(button.findColour(ComboBox::outlineColourId));
         g.drawRoundedRectangle(bounds, cornerSize, 2.0f);
     }
+}
+
+juce::Font jelodyne::JelodyneLookAndFeel::getTextButtonFont(juce::TextButton &,
+                                                            int buttonHeight) {
+    return getInterBoldItalic();
 }
 
 // https://github.com/juce-framework/JUCE/blob/master/modules/juce_gui_basics/lookandfeel/juce_LookAndFeel_V4.cpp#L929

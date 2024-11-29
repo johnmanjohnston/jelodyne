@@ -49,7 +49,10 @@ jelodyne::ControlBar::ControlBar() : juce::Component() {
 
     // other buttons
     quitButton.setButtonText("Quit");
+    exportButton.setButtonText("Export");
+
     addAndMakeVisible(quitButton);
+    addAndMakeVisible(exportButton);
 }
 
 void jelodyne::ControlBar::onScalesSelectorBoxesChange() {
@@ -85,9 +88,12 @@ void jelodyne::ControlBar::resized() {
     scaleSelectorBox.setBounds(lb.getX() + 580, lb.getY() + 5, 110,
                                lb.getHeight() - 10);
 
-    int quitButtonWidth = 80;
-    quitButton.setBounds(lb.getWidth() - (quitButtonWidth + 10), lb.getY() + 5,
-                         quitButtonWidth, lb.getHeight() - 10);
+    int btnWidth = 80;
+    quitButton.setBounds(lb.getWidth() - (btnWidth + 10), lb.getY() + 5,
+                         btnWidth, lb.getHeight() - 10);
+
+    exportButton.setBounds(lb.getWidth() - ((btnWidth * 2) + 20), lb.getY() + 5,
+                           btnWidth, lb.getHeight() - 10);
 }
 
 juce::Font jelodyne::ControlBar::getInterBold() {
