@@ -10,6 +10,7 @@ jelodyne::ControlBar::ControlBar() : juce::Component() {
     addAndMakeVisible(filenameLabel);
 
     // scale selection
+    // add keys
     for (int i = 0; i <= 12; ++i) {
         juce::String noteName =
             juce::MidiMessage::getMidiNoteName(i + 59, true, false, 1);
@@ -23,10 +24,14 @@ jelodyne::ControlBar::ControlBar() : juce::Component() {
         keySelectorBox.addItem(noteName, i + 1);
     }
 
+    // add modes
     tonalitySelectorBox.addItem("Major", 1);
     tonalitySelectorBox.addItem("Minor", 2);
 
-    scaleSelectorBox.addItem("Key Scale", 1);
+    // add scales
+    scaleSelectorBox.addItem(
+        "Natural", 1); // apparently "Natural" is the right term. TODO: change
+                       // all references of key scale to natural in codebase
     scaleSelectorBox.addItem("Pentatonic", 2);
 
     addAndMakeVisible(keySelectorBox);
@@ -36,6 +41,15 @@ jelodyne::ControlBar::ControlBar() : juce::Component() {
     keySelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
     tonalitySelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
     scaleSelectorBox.onChange = [this] { onScalesSelectorBoxesChange(); };
+
+    keySelectorBox.setText("Key");
+    tonalitySelectorBox.setText("Mode"); // apparently it can also be called a
+                                         // "mode"? idk enough about music, man
+    scaleSelectorBox.setText("Scale");
+
+    // other buttons
+    quitButton.setButtonText("Quit");
+    addAndMakeVisible(quitButton);
 }
 
 void jelodyne::ControlBar::onScalesSelectorBoxesChange() {
@@ -70,6 +84,10 @@ void jelodyne::ControlBar::resized() {
 
     scaleSelectorBox.setBounds(lb.getX() + 580, lb.getY() + 5, 110,
                                lb.getHeight() - 10);
+
+    int quitButtonWidth = 80;
+    quitButton.setBounds(lb.getWidth() - (quitButtonWidth + 10), lb.getY() + 5,
+                         quitButtonWidth, lb.getHeight() - 10);
 }
 
 juce::Font jelodyne::ControlBar::getInterBold() {

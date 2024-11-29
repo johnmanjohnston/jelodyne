@@ -13,5 +13,14 @@ class JelodyneLookAndFeel : public juce::LookAndFeel_V4 {
     void drawComboBox(Graphics &g, int width, int height, bool isButtonDown,
                       int buttonX, int buttonY, int buttonW, int buttonH,
                       ComboBox &box) override;
+
+    void drawButtonBackground(juce::Graphics &g, juce::Button &button,
+                              const juce::Colour &backgroundColour,
+                              bool shouldDrawButtonAsHighlighted,
+                              bool shouldDrawButtonAsDown) override;
+
+  private:
+    const juce::Colour elementBg = juce::Colour(20, 20, 20);
+    juce::ColourGradient getElementBgGradient(juce::Rectangle<float> bounds);
 };
 } // namespace jelodyne

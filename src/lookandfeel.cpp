@@ -1,17 +1,34 @@
 #include "lookandfeel.h"
-#include "juce_graphics/juce_graphics.h"
 
 jelodyne::JelodyneLookAndFeel::JelodyneLookAndFeel() {
-    juce::Colour dropdownBg = juce::Colour(20, 20, 20);
-    setColour(juce::ComboBox::ColourIds::backgroundColourId, dropdownBg);
-    setColour(juce::ComboBox::ColourIds::focusedOutlineColourId, dropdownBg);
+    // set ComboBox colors
+    setColour(juce::ComboBox::ColourIds::backgroundColourId,
+              elementBg); // set bg
+
+    setColour(juce::ComboBox::ColourIds::focusedOutlineColourId,
+              elementBg); // set focused outline
+
     setColour(juce::ComboBox::ColourIds::textColourId,
-              juce::Colour(200, 200, 200));
+              juce::Colour(200, 200, 200)); // set text color
+
+    setColour(juce::ComboBox::ColourIds::arrowColourId,
+              juce::Colour(200, 200, 200)); // set arrow color
+
     setColour(juce::PopupMenu::ColourIds::backgroundColourId,
-              dropdownBg.brighter(.1f));
+              elementBg.brighter(.1f)); // set dropdown color
 
     setColour(juce::ComboBox::ColourIds::outlineColourId,
-              juce::Colour(65, 65, 65));
+              juce::Colour(65, 65, 65)); // set outline
+
+    // set TextButton colors
+    setColour(juce::TextButton::ColourIds::buttonColourId,
+              elementBg); // set bg color
+}
+
+juce::ColourGradient jelodyne::JelodyneLookAndFeel::getElementBgGradient(
+    juce::Rectangle<float> bounds) {
+    return juce::ColourGradient::vertical(elementBg.brighter(.05f), elementBg,
+                                          bounds);
 }
 
 juce::Font jelodyne::JelodyneLookAndFeel::getInterBoldItalic() {
@@ -31,6 +48,53 @@ juce::Font jelodyne::JelodyneLookAndFeel::getComboBoxFont(juce::ComboBox &box) {
     return getInterBoldItalic();
 }
 
+// https://github.com/juce-framework/JUCE/blob/master/modules/juce_gui_basics/lookandfeel/juce_LookAndFeel_V4.cpp#L290
+void jelodyne::JelodyneLookAndFeel::drawButtonBackground(
+    juce::Graphics &g, juce::Button &button,
+    const juce::Colour &backgroundColour, bool shouldDrawButtonAsHighlighted,
+    bool shouldDrawButtonAsDown) {
+    auto cornerSize = 0.f;
+    auto bounds = button.getLocalBounds().toFloat().reduced(0.5f, 0.5f);
+
+    auto baseColour =
+        backgroundColour
+            .withMultipliedSaturation(button.hasKeyboardFocus(true) ? 1.3f
+                                                                    : 0.9f)
+            .withMultipliedAlpha(button.isEnabled() ? 1.0f : 0.5f);
+
+    if (shouldDrawButtonAsDown || shouldDrawButtonAsHighlighted)
+        baseColour =
+            baseColour.contrasting(shouldDrawButtonAsDown ? 0.2f : 0.05f);
+
+    g.setColour(baseColour);
+
+    auto flatOnLeft = button.isConnectedOnLeft();
+    auto flatOnRight = button.isConnectedOnRight();
+    auto flatOnTop = button.isConnectedOnTop();
+    auto flatOnBottom = button.isConnectedOnBottom();
+
+    g.setGradientFill(getElementBgGradient(bounds));
+
+    if (flatOnLeft || flatOnRight || flatOnTop || flatOnBottom) {
+        Path path;
+        path.addRoundedRectangle(
+            bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(),
+            cornerSize, cornerSize, !(flatOnLeft || flatOnTop),
+            !(flatOnRight || flatOnTop), !(flatOnLeft || flatOnBottom),
+            !(flatOnRight || flatOnBottom));
+
+        g.fillPath(path);
+
+        g.setColour(button.findColour(ComboBox::outlineColourId));
+        g.strokePath(path, PathStrokeType(2.0f));
+    } else {
+        g.fillRoundedRectangle(bounds, cornerSize);
+
+        g.setColour(button.findColour(ComboBox::outlineColourId));
+        g.drawRoundedRectangle(bounds, cornerSize, 2.0f);
+    }
+}
+
 // https://github.com/juce-framework/JUCE/blob/master/modules/juce_gui_basics/lookandfeel/juce_LookAndFeel_V4.cpp#L929
 void jelodyne::JelodyneLookAndFeel::drawComboBox(Graphics &g, int width,
                                                  int height, bool isButtonDown,
@@ -39,12 +103,7 @@ void jelodyne::JelodyneLookAndFeel::drawComboBox(Graphics &g, int width,
                                                  ComboBox &box) {
     Rectangle<int> boxBounds(0, 0, width, height);
 
-    juce::ColourGradient gradient = juce::ColourGradient::vertical(
-        box.findColour(ComboBox::backgroundColourId).brighter(.05f),
-        box.findColour(ComboBox::backgroundColourId), boxBounds);
-
-    g.setColour(box.findColour(ComboBox::backgroundColourId));
-    g.setGradientFill(gradient);
+    g.setGradientFill(getElementBgGradient(boxBounds.toFloat()));
     g.fillRect(boxBounds);
 
     g.setColour(box.findColour(ComboBox::outlineColourId));

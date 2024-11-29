@@ -18,6 +18,9 @@ class ControlBar : public juce::Component, public JBroadcaster {
     juce::ComboBox scaleSelectorBox;
     void onScalesSelectorBoxesChange();
 
+    // other buttons
+    juce::TextButton quitButton;
+
     juce::Font getInterBold();
 };
 } // namespace jelodyne
