@@ -11,6 +11,7 @@ class ControlBar : public juce::Component, public JBroadcaster {
 
   private:
     juce::Label filenameLabel;
+    juce::Label doYouSuckAtSingingLabel;
 
     // scale selection
     juce::ComboBox keySelectorBox;

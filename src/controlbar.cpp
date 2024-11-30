@@ -57,6 +57,16 @@ jelodyne::ControlBar::ControlBar() : juce::Component() {
     addAndMakeVisible(exportButton);
     addAndMakeVisible(saveButton);
     addAndMakeVisible(miscButton);
+
+    // the do you suck at singing label
+    doYouSuckAtSingingLabel.setFont(getInterBold().withHeight(14.f));
+    doYouSuckAtSingingLabel.setColour(juce::Label::textColourId,
+                                      juce::Colour(100, 100, 100));
+    doYouSuckAtSingingLabel.setText(
+        "3/4 notes corrected; wow you suck at singing",
+        juce::NotificationType::dontSendNotification);
+
+    addAndMakeVisible(doYouSuckAtSingingLabel);
 }
 
 void jelodyne::ControlBar::onScalesSelectorBoxesChange() {
@@ -105,6 +115,9 @@ void jelodyne::ControlBar::resized() {
 
     miscButton.setBounds(lb.getWidth() - ((btnWidth * 4) + (btnMargin * 4)),
                          lb.getY() + 5, btnWidth, lb.getHeight() - 10);
+
+    doYouSuckAtSingingLabel.setBounds(lb.getWidth() / 2 + 40, lb.getY(), 300,
+                                      lb.getHeight());
 }
 
 juce::Font jelodyne::ControlBar::getInterBold() {
