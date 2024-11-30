@@ -50,9 +50,13 @@ jelodyne::ControlBar::ControlBar() : juce::Component() {
     // other buttons
     quitButton.setButtonText("Quit");
     exportButton.setButtonText("Export");
+    saveButton.setButtonText("Save");
+    miscButton.setButtonText("Misc.");
 
     addAndMakeVisible(quitButton);
     addAndMakeVisible(exportButton);
+    addAndMakeVisible(saveButton);
+    addAndMakeVisible(miscButton);
 }
 
 void jelodyne::ControlBar::onScalesSelectorBoxesChange() {
@@ -82,18 +86,25 @@ void jelodyne::ControlBar::resized() {
     keySelectorBox.setBounds(lb.getX() + 400, lb.getY() + 5, 80,
                              lb.getHeight() - 10);
 
-    tonalitySelectorBox.setBounds(lb.getX() + 490, lb.getY() + 5, 80,
+    tonalitySelectorBox.setBounds(lb.getX() + 490 - 6, lb.getY() + 5, 80,
                                   lb.getHeight() - 10);
 
-    scaleSelectorBox.setBounds(lb.getX() + 580, lb.getY() + 5, 110,
+    scaleSelectorBox.setBounds(lb.getX() + 580 - 12, lb.getY() + 5, 110,
                                lb.getHeight() - 10);
 
     int btnWidth = 80;
-    quitButton.setBounds(lb.getWidth() - (btnWidth + 10), lb.getY() + 5,
+    int btnMargin = 4;
+    quitButton.setBounds(lb.getWidth() - (btnWidth + btnMargin), lb.getY() + 5,
                          btnWidth, lb.getHeight() - 10);
 
-    exportButton.setBounds(lb.getWidth() - ((btnWidth * 2) + 20), lb.getY() + 5,
-                           btnWidth, lb.getHeight() - 10);
+    exportButton.setBounds(lb.getWidth() - ((btnWidth * 2) + (btnMargin * 2)),
+                           lb.getY() + 5, btnWidth, lb.getHeight() - 10);
+
+    saveButton.setBounds(lb.getWidth() - ((btnWidth * 3) + (btnMargin * 3)),
+                         lb.getY() + 5, btnWidth, lb.getHeight() - 10);
+
+    miscButton.setBounds(lb.getWidth() - ((btnWidth * 4) + (btnMargin * 4)),
+                         lb.getY() + 5, btnWidth, lb.getHeight() - 10);
 }
 
 juce::Font jelodyne::ControlBar::getInterBold() {
