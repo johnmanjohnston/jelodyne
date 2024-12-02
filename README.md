@@ -1,5 +1,11 @@
 # jelodyne
 
+# About
+jelodyne is a manual pitch correction program, "heavily inspired" from Melodyne.
+
+# Installation
+TODO
+
 # Building
 ### Linux:
 - clone this repo (and `cd` into it)
