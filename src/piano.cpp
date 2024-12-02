@@ -10,15 +10,15 @@ jelodyne::piano::pianoRoll::pianoRoll(MidiKeyboardState &state,
 void jelodyne::piano::pianoRoll::drawScaleOverlay(Graphics &g,
                                                   Rectangle<float> area,
                                                   bool isBlack) {
-    Colour c = Colours::purple;
+    Colour c = juce::Colour(182, 63, 255);
     g.setColour(c);
 
-    if (isBlack)
-        g.setOpacity(0.6f);
-    else
-        g.setOpacity(0.2f);
+    juce::Rectangle<float> overlayArea = area;
+    float overlayWidth = 8.f;
+    overlayArea.setWidth(overlayWidth);
+    overlayArea.setX(area.getWidth() - overlayWidth);
 
-    g.fillRect(area);
+    g.fillRect(overlayArea);
     g.setOpacity(1.f);
 }
 
