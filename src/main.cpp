@@ -28,9 +28,33 @@ class jelodyneApplication : public juce::JUCEApplication {
         // This method is where you should put your application's initialisation
         // code..
 
-        mainWindow.reset(new MainWindow(
-            getApplicationName() + " " + getApplicationVersion() +
-            juce::String(JUCE_DEBUG == 1 ? "-dev" : "", 4)));
+        juce::String appendedTitle = "";
+
+        if (JUCE_DEBUG) {
+            // https://forum.juce.com/t/cross-platform-build-number-or-date-access/21391/7
+            juce::StringArray command;
+            command.add("git");
+            command.add("rev-parse");
+            command.add("--short");
+            command.add("HEAD");
+
+            juce::ChildProcess c;
+            juce::String gitHashShort;
+
+            if (c.start(command, ChildProcess::wantStdOut)) {
+                c.waitForProcessToFinish(1000);
+
+                if (c.getExitCode() == 0)
+                    gitHashShort = c.readAllProcessOutput().trim();
+            }
+
+            appendedTitle = "-dev-";
+            appendedTitle.append(gitHashShort, 7);
+        }
+
+        mainWindow.reset(new MainWindow(getApplicationName() + " " +
+                                        getApplicationVersion() +
+                                        appendedTitle));
     }
 
     void shutdown() override {
