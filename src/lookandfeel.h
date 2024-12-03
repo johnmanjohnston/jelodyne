@@ -20,11 +20,20 @@ class JelodyneLookAndFeel : public juce::LookAndFeel_V4 {
                               bool shouldDrawButtonAsDown) override;
 
     juce::Font getTextButtonFont(juce::TextButton &, int buttonHeight) override;
+};
 
-  private:
-    const juce::Colour elementBg = juce::Colour(20, 20, 20);
-    const juce::Colour elementText = juce::Colour(200, 200, 200);
-    const juce::Colour elementOutline = juce::Colour(65, 65, 65);
-    juce::ColourGradient getElementBgGradient(juce::Rectangle<float> bounds);
+class Palette {
+  public:
+    static juce::Colour getPurple() { return juce::Colour(182, 63, 255); }
+
+    static juce::Colour getElementBg() { return juce::Colour(20, 20, 20); }
+    static juce::Colour getElementText() { return juce::Colour(200, 200, 200); }
+    static juce::Colour getElementOutline() { return juce::Colour(65, 65, 65); }
+
+    static juce::ColourGradient
+    getElementBgGradient(juce::Rectangle<float> bounds) {
+        return juce::ColourGradient::vertical(getElementBg().brighter(.05f),
+                                              getElementBg(), bounds);
+    }
 };
 } // namespace jelodyne

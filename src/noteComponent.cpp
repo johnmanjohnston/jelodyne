@@ -1,5 +1,6 @@
 #include "noteComponent.h"
 #include "common.h"
+#include "lookandfeel.h"
 #include "shift.h"
 #include "utility.h"
 
@@ -9,7 +10,7 @@ jelodyne::NoteComponent::NoteComponent()
 void jelodyne::NoteComponent::paint(juce::Graphics &g) {
     g.fillAll(juce::Colours::white);
 
-    Colour c = juce::Colour(182, 63, 255);
+    Colour c = jelodyne::Palette::getPurple();
     g.setColour(c);
     g.fillRect(getLocalBounds()); // i am embarrased at how much time it took me
                                   // to find out i should use getLocalBounds()

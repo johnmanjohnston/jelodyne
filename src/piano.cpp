@@ -1,6 +1,6 @@
 #include "piano.h"
-#include "juce_core/juce_core.h"
-#include "juce_graphics/juce_graphics.h"
+#include "lookandfeel.h"
+
 using namespace juce;
 
 jelodyne::piano::pianoRoll::pianoRoll(MidiKeyboardState &state,
@@ -10,8 +10,7 @@ jelodyne::piano::pianoRoll::pianoRoll(MidiKeyboardState &state,
 void jelodyne::piano::pianoRoll::drawScaleOverlay(Graphics &g,
                                                   Rectangle<float> area,
                                                   bool isBlack) {
-    Colour c = juce::Colour(182, 63, 255);
-    g.setColour(c);
+    g.setColour(jelodyne::Palette::getPurple());
 
     juce::Rectangle<float> overlayArea = area;
     float overlayWidth = 8.f;

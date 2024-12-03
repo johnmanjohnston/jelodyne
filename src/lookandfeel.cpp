@@ -3,32 +3,26 @@
 jelodyne::JelodyneLookAndFeel::JelodyneLookAndFeel() {
     // set ComboBox colors
     setColour(juce::ComboBox::ColourIds::focusedOutlineColourId,
-              elementBg); // set focused outline
+              Palette::getElementBg()); // set focused outline
 
     setColour(juce::ComboBox::ColourIds::textColourId,
-              elementText); // set text color
+              Palette::getElementText()); // set text color
 
     setColour(juce::ComboBox::ColourIds::arrowColourId,
-              elementText); // set arrow color
+              Palette::getElementText()); // set arrow color
 
     setColour(juce::PopupMenu::ColourIds::backgroundColourId,
-              elementBg.brighter(.1f)); // set dropdown color
+              Palette::getElementBg().brighter(.1f)); // set dropdown color
 
     setColour(juce::ComboBox::ColourIds::outlineColourId,
-              elementOutline); // set outline
+              Palette::getElementOutline()); // set outline
 
     // set TextButton colors
     setColour(juce::TextButton::ColourIds::textColourOnId,
-              elementText); // set text color for on
+              Palette::getElementText()); // set text color for on
 
     setColour(juce::TextButton::ColourIds::textColourOffId,
-              elementText); // set text color for off
-}
-
-juce::ColourGradient jelodyne::JelodyneLookAndFeel::getElementBgGradient(
-    juce::Rectangle<float> bounds) {
-    return juce::ColourGradient::vertical(elementBg.brighter(.05f), elementBg,
-                                          bounds);
+              Palette::getElementText()); // set text color for off
 }
 
 juce::Font jelodyne::JelodyneLookAndFeel::getInterBoldItalic() {
@@ -73,7 +67,7 @@ void jelodyne::JelodyneLookAndFeel::drawButtonBackground(
     auto flatOnTop = button.isConnectedOnTop();
     auto flatOnBottom = button.isConnectedOnBottom();
 
-    g.setGradientFill(getElementBgGradient(bounds));
+    g.setGradientFill(Palette::getElementBgGradient(bounds));
 
     if (flatOnLeft || flatOnRight || flatOnTop || flatOnBottom) {
         Path path;
@@ -108,7 +102,7 @@ void jelodyne::JelodyneLookAndFeel::drawComboBox(Graphics &g, int width,
                                                  ComboBox &box) {
     Rectangle<int> boxBounds(0, 0, width, height);
 
-    g.setGradientFill(getElementBgGradient(boxBounds.toFloat()));
+    g.setGradientFill(Palette::getElementBgGradient(boxBounds.toFloat()));
     g.fillRect(boxBounds);
 
     g.setColour(box.findColour(ComboBox::outlineColourId));
