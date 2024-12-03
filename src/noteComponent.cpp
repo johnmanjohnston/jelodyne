@@ -9,7 +9,8 @@ jelodyne::NoteComponent::NoteComponent()
 void jelodyne::NoteComponent::paint(juce::Graphics &g) {
     g.fillAll(juce::Colours::white);
 
-    g.setColour(juce::Colours::red);
+    Colour c = juce::Colour(182, 63, 255);
+    g.setColour(c);
     g.fillRect(getLocalBounds()); // i am embarrased at how much time it took me
                                   // to find out i should use getLocalBounds()
                                   // instead of getBounds()
