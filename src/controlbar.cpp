@@ -53,6 +53,11 @@ jelodyne::ControlBar::ControlBar() : juce::Component() {
     saveButton.setButtonText("Save");
     miscButton.setButtonText("Misc.");
 
+    miscButton.onClick = [] { DBG("misc button clicked"); };
+    saveButton.onClick = [] { DBG("save button clicked"); };
+    exportButton.onClick = [] { DBG("export button clicked"); };
+    quitButton.onClick = [] { JUCEApplicationBase::quit(); };
+
     addAndMakeVisible(quitButton);
     addAndMakeVisible(exportButton);
     addAndMakeVisible(saveButton);
