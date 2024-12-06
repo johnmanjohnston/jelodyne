@@ -3,6 +3,9 @@
 # About
 jelodyne is a manual pitch correction program, "heavily inspired" from Melodyne.
 
+# Demo
+TODO
+
 # Installation
 TODO
 
