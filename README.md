@@ -4,6 +4,8 @@
 jelodyne is a manual pitch correction program, "heavily inspired" from Melodyne.
 
 # Demo
+Orginal audio file:
+Pitch corrected with jelodyne:
 TODO
 
 # Installation
