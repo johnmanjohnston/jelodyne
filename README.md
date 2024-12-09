@@ -13,9 +13,10 @@ TODO
 
 # Building
 ### Linux:
-- clone this repo (and `cd` into it)
+- clone this repo and `cd` into it
 ```shell
 $ git clone https://github.com/johnmanjohnston/jelodyne
+$ cd jelodyne
 ```
 - clone the JUCE repo into the root of this repo
 ```shell
