@@ -25,6 +25,7 @@ void jelodyne::NoteComponent::paint(juce::Graphics &g) {
 
 void jelodyne::NoteComponent::mouseDown(const juce::MouseEvent &event) {
     broadcastMessage((void *)&noteData, (void *)(uintptr_t)TYPECODE_NOTE);
+    broadcastMessage((void *)this, (void *)(uintptr_t)TYPECODE_VIEW_NOTE_INFO);
 }
 
 void jelodyne::NoteComponent::mouseUp(const juce::MouseEvent &event) {

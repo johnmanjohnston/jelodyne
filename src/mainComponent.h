@@ -4,6 +4,7 @@
 #include "jlistener/jlistenerbroadcaster.h"
 #include "lookandfeel.h"
 #include "note.h"
+#include "noteInfoComponent.h"
 #include "piano.h"
 
 #include "controlbar.h"
@@ -96,10 +97,10 @@ class MainComponent : public juce::AudioAppComponent,
     bool shouldPlayLoopingNote();
     int position = 0;
     jelodyne::note *currentLoopingNote = nullptr;
+    jelodyne::NoteInfoComponent *currentNoteInfoComponent = nullptr;
 
     jelodyne::ControlBar controlBar;
 
-    // int getYCoordinateForNote(int noteNumber, int endNote);
     //==============================================================================
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)

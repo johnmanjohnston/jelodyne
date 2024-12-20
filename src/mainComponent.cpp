@@ -2,6 +2,7 @@
 #include "common.h"
 #include "note.h"
 #include "noteComponent.h"
+#include "noteInfoComponent.h"
 #include "piano.h"
 #include "scale.h"
 #include "utility.h"
@@ -62,6 +63,11 @@ MainComponent::~MainComponent() {
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
     controlBar.setLookAndFeel(nullptr);
+
+    if (this->currentNoteInfoComponent != nullptr)
+        delete this->currentNoteInfoComponent;
+
+    this->currentNoteInfoComponent = nullptr;
 }
 
 void MainComponent::handleIncomingMidiMessage(
@@ -483,6 +489,7 @@ void MainComponent::JListenerCallback(void *data, void *metadata,
         currentLoopingNote = (jelodyne::note *)data;
     }
 
+    // shut up
     if (typecode == TYPECODE_CLEAR_NOTE) {
         position = 0;
         currentLoopingNote = nullptr;
@@ -491,6 +498,27 @@ void MainComponent::JListenerCallback(void *data, void *metadata,
     if (typecode == TYPECODE_UPDATED_SCALE_DATA) {
         pianoRoll.pianoScale = *((jelodyne::scale *)data);
         pianoRoll.repaint();
+    }
+
+    if (typecode == TYPECODE_VIEW_NOTE_INFO) {
+        if (this->currentNoteInfoComponent != nullptr) {
+            delete this->currentNoteInfoComponent;
+            repaint();
+        }
+
+        // create note info component
+        this->currentNoteInfoComponent = new jelodyne::NoteInfoComponent;
+        this->currentNoteInfoComponent->setCorrespondingNoteComponent(
+            (jelodyne::NoteComponent *)data);
+
+        // position and make visible
+        juce::Rectangle<int> noteComponentBounds =
+            ((jelodyne::NoteComponent *)data)->getBoundsInParent();
+
+        this->currentNoteInfoComponent->setBounds(
+            noteComponentBounds.getX() - 100, noteComponentBounds.getY() - 110,
+            200, 100);
+        addAndMakeVisible(this->currentNoteInfoComponent);
     }
 
     /*
