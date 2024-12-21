@@ -9,10 +9,17 @@ jelodyne::NoteInfoComponent::~NoteInfoComponent() {
 }
 
 void jelodyne::NoteInfoComponent::paint(juce::Graphics &g) {
-    g.setColour(juce::Colours::pink);
+    // TODO: correct this background gradient
+    juce::ColourGradient bg = juce::ColourGradient::vertical(
+        juce::Colour(40, 40, 40), juce::Colours::black, getLocalBounds());
+
+    g.setGradientFill(bg);
     g.fillRect(getLocalBounds());
 
-    g.setColour(juce::Colours::black);
+    g.setColour(juce::Colour(82, 82, 82));
+    g.drawRect(getLocalBounds(), 2);
+
+    g.setColour(juce::Colours::white);
     g.setFont(17.f);
 
     juce::String noteNumberAsStr =
@@ -25,6 +32,13 @@ void jelodyne::NoteInfoComponent::paint(juce::Graphics &g) {
 void jelodyne::NoteInfoComponent::setCorrespondingNoteComponent(
     jelodyne::NoteComponent *nc) {
     this->noteComponent = nc;
-    setBounds(nc->getLocalBounds());
+
+    int width = 180;
+    int height = 60;
+
+    juce::Rectangle<int> ncBounds = nc->getBoundsInParent();
+    setBounds(ncBounds.getX() - (width / 2), ncBounds.getY() - (height + 10),
+              width, height);
+
     repaint();
 }

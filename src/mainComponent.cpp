@@ -511,13 +511,6 @@ void MainComponent::JListenerCallback(void *data, void *metadata,
         this->currentNoteInfoComponent->setCorrespondingNoteComponent(
             (jelodyne::NoteComponent *)data);
 
-        // position and make visible
-        juce::Rectangle<int> noteComponentBounds =
-            ((jelodyne::NoteComponent *)data)->getBoundsInParent();
-
-        this->currentNoteInfoComponent->setBounds(
-            noteComponentBounds.getX() - 100, noteComponentBounds.getY() - 110,
-            200, 100);
         addAndMakeVisible(this->currentNoteInfoComponent);
     }
 
