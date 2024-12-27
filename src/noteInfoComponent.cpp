@@ -13,20 +13,40 @@ void jelodyne::NoteInfoComponent::paint(juce::Graphics &g) {
     juce::ColourGradient bg = juce::ColourGradient::vertical(
         juce::Colour(40, 40, 40), juce::Colours::black, getLocalBounds());
 
+    // :sparkles: colors :sparkles:
     g.setGradientFill(bg);
     g.fillRect(getLocalBounds());
 
     g.setColour(juce::Colour(82, 82, 82));
     g.drawRect(getLocalBounds(), 2);
 
-    g.setColour(juce::Colours::white);
-    g.setFont(17.f);
+    // get text to draw
+    juce::String editedNoteName = juce::MidiMessage::getMidiNoteName(
+        this->noteComponent->noteData.noteNumber, true, true, 3);
 
-    juce::String noteNumberAsStr =
-        juce::String(this->noteComponent->noteData.noteNumber);
+    juce::String orginalNoteName = juce::MidiMessage::getMidiNoteName(
+        this->noteComponent->orginalNoteData.noteNumber, true, true, 3);
 
-    g.drawText(noteNumberAsStr, getLocalBounds(), juce::Justification::left,
-               false);
+    // position and draw text
+
+    g.setColour(juce::Colour(200, 200, 200));
+    g.setFont(getInterBoldItalic());
+    g.setFont(19.f);
+
+    auto defaultBounds = getLocalBounds();
+    defaultBounds.setX(defaultBounds.getX() + 5);
+
+    g.drawText(juce::String("orginal: " + orginalNoteName),
+               juce::Rectangle<float>(
+                   defaultBounds.getX(), defaultBounds.getY(),
+                   defaultBounds.getWidth(), defaultBounds.getHeight() / 2.f),
+               juce::Justification::left, false);
+
+    g.drawText(juce::String("edited: " + editedNoteName),
+               juce::Rectangle<float>(
+                   defaultBounds.getX(), defaultBounds.getY(),
+                   defaultBounds.getWidth(), defaultBounds.getHeight() / 0.8f),
+               juce::Justification::left, false);
 }
 
 void jelodyne::NoteInfoComponent::setCorrespondingNoteComponent(
@@ -41,4 +61,12 @@ void jelodyne::NoteInfoComponent::setCorrespondingNoteComponent(
               width, height);
 
     repaint();
+}
+
+juce::Font jelodyne::NoteInfoComponent::getInterBoldItalic() {
+    auto typeface = juce::Typeface::createSystemTypefaceFor(
+        BinaryData::Inter_24ptBoldItalic_ttf,
+        BinaryData::Inter_24ptBoldItalic_ttfSize);
+
+    return Font(FontOptions(typeface).withHeight(16.f));
 }
