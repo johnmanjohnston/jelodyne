@@ -56,7 +56,8 @@ MainComponent::MainComponent()
 
     DBG("activating device " << midiName);
 
-    loadFile("/home/johnston/Downloads/jelodyne-testing.wav");
+    // loadFile("/home/johnston/Downloads/jelodyne-testing.wav");
+    loadFile("/home/johnston/Downloads/jldn.wav");
 }
 
 MainComponent::~MainComponent() {

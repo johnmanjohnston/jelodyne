@@ -71,7 +71,7 @@ class MainComponent : public juce::AudioAppComponent,
 
     // pitch detection
     static constexpr auto fftOrder = 13;
-    static constexpr auto fftSize = 1 << fftOrder;
+    static constexpr auto fftSize = 2 << fftOrder;
     juce::dsp::FFT forwardFFT;
 
     std::array<float, fftSize> fifo = {0};

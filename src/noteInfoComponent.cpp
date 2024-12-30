@@ -24,6 +24,9 @@ void jelodyne::NoteInfoComponent::paint(juce::Graphics &g) {
     juce::String editedNoteName = juce::MidiMessage::getMidiNoteName(
         this->noteComponent->noteData.noteNumber, true, true, 3);
 
+    juce::String orginalNoteFrequency =
+        juce::String(this->noteComponent->orginalNoteData.originalFrequency);
+
     juce::String orginalNoteName = juce::MidiMessage::getMidiNoteName(
         this->noteComponent->orginalNoteData.noteNumber, true, true, 3);
 
@@ -36,7 +39,8 @@ void jelodyne::NoteInfoComponent::paint(juce::Graphics &g) {
     auto defaultBounds = getLocalBounds();
     defaultBounds.setX(defaultBounds.getX() + 5);
 
-    g.drawText(juce::String("orginal: " + orginalNoteName),
+    g.drawText(juce::String("orginal: " + orginalNoteName + " // " +
+                            orginalNoteFrequency + "Hz"),
                juce::Rectangle<float>(
                    defaultBounds.getX(), defaultBounds.getY(),
                    defaultBounds.getWidth(), defaultBounds.getHeight() / 2.f),
